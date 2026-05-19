@@ -47,7 +47,7 @@ function ProductPage() {
             <div className="mt-6 royal-border rounded-xl p-4">
               <div className="text-xs uppercase tracking-wider text-primary mb-2">Specifications</div>
               <ul className="grid grid-cols-2 gap-2 text-sm">
-                {p.specs.map((s) => <li key={s} className="text-muted-foreground">• {s}</li>)}
+                {p.specs.map((s: string) => <li key={s} className="text-muted-foreground">• {s}</li>)}
               </ul>
             </div>
           )}

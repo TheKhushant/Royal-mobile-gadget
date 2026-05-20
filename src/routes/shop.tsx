@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { categories, products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { z } from "zod";
@@ -22,7 +22,12 @@ function Shop() {
   const filtered = useMemo(() => {
     let list = [...products];
     if (active) list = list.filter((p) => p.category === active);
-    if (q.trim()) list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
+    if (q.trim()) {
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(q.toLowerCase()) ||
+        p.category.toLowerCase().includes(q.toLowerCase())
+      );
+    }
     if (sort === "low") list.sort((a, b) => a.price - b.price);
     if (sort === "high") list.sort((a, b) => b.price - a.price);
     if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
@@ -31,45 +36,84 @@ function Shop() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-      <div className="mb-8">
-        <h1 className="font-display text-4xl sm:text-5xl"><span className="text-gradient-gold">Shop</span> {active && <span className="text-foreground">— {active}</span>}</h1>
-        <p className="text-muted-foreground mt-2">{filtered.length} products available</p>
+      <div className="mb-10">
+        <h1 className="font-display text-5xl">
+          {active ? active : "All Products"}
+        </h1>
+        <p className="text-zinc-500 mt-2">{filtered.length} premium products</p>
       </div>
 
-      <div className="grid lg:grid-cols-[260px_1fr] gap-8">
-        <aside className="space-y-6 lg:sticky lg:top-20 self-start">
+      <div className="grid lg:grid-cols-[280px_1fr] gap-10">
+        {/* Sidebar Filters */}
+        <aside className="lg:sticky lg:top-24 self-start space-y-8">
+          {/* Search */}
           <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products..." className="w-full bg-input border border-border rounded-md pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-1 ring-gold" />
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search products..."
+              className="w-full bg-white border border-zinc-200 rounded-2xl pl-11 py-3.5 text-sm focus:border-rose-300 focus:outline-none"
+            />
+            {q && (
+              <button onClick={() => setQ("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+                <X size={18} />
+              </button>
+            )}
           </div>
+
+          {/* Sort */}
           <div>
-            <div className="text-xs uppercase tracking-wider text-primary mb-3">Sort</div>
-            <select value={sort} onChange={(e) => setSort(e.target.value)} className="w-full bg-input border border-border rounded-md px-3 py-2 text-sm">
+            <div className="text-xs uppercase tracking-widest text-rose-600 mb-3">Sort By</div>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="w-full bg-white border border-zinc-200 rounded-2xl px-5 py-3.5 text-sm focus:outline-none focus:border-rose-300"
+            >
               <option value="featured">Featured</option>
               <option value="low">Price: Low to High</option>
               <option value="high">Price: High to Low</option>
               <option value="rating">Top Rated</option>
             </select>
           </div>
+
+          {/* Categories */}
           <div>
-            <div className="text-xs uppercase tracking-wider text-primary mb-3">Categories</div>
+            <div className="text-xs uppercase tracking-widest text-rose-600 mb-3">Categories</div>
             <div className="space-y-1">
-              <button onClick={() => setActive(undefined)} className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${!active ? "bg-secondary text-primary" : "hover:bg-secondary/60 text-muted-foreground"}`}>All Products</button>
+              <button
+                onClick={() => setActive(undefined)}
+                className={`w-full text-left px-5 py-3 rounded-2xl text-sm transition-all ${!active ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"}`}
+              >
+                All Products
+              </button>
               {categories.map((c) => (
-                <button key={c.slug} onClick={() => setActive(c.slug)} className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${active === c.slug ? "bg-secondary text-primary" : "hover:bg-secondary/60 text-muted-foreground"}`}>
-                  <span>{c.icon}</span> {c.slug}
+                <button
+                  key={c.slug}
+                  onClick={() => setActive(c.slug)}
+                  className={`w-full text-left px-5 py-3 rounded-2xl text-sm flex items-center gap-3 transition-all ${active === c.slug ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"}`}
+                >
+                  <span className="text-xl">{c.icon}</span> {c.slug}
                 </button>
               ))}
             </div>
           </div>
         </aside>
 
+        {/* Products Grid */}
         <div>
           {filtered.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">No products match your filters.</div>
+            <div className="text-center py-20">
+              <p className="text-xl text-zinc-400">No products found</p>
+              <button onClick={() => { setQ(""); setActive(undefined); }} className="mt-4 text-rose-600 underline">
+                Clear filters
+              </button>
+            </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-              {filtered.map((p) => <ProductCard key={p.id} product={p} />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {filtered.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
             </div>
           )}
         </div>

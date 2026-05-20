@@ -10,69 +10,41 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-gold: var(--gold);
-  --color-gold-soft: var(--gold-soft);
-  --color-royal-red: var(--royal-red);
+  
+  --color-background: #ffffff;
+  --color-foreground: #0f0f0f;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f0f0f;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0f0f0f;
+  --color-primary: #e11d48;           /* Deep Rose Red */
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-accent: #e11d48;
+  --color-accent-foreground: #ffffff;
+  --color-destructive: #e11d48;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e4e4e7;
+  --color-input: #fafafa;
+  --color-ring: #e11d48;
+
+  --gold: #d4af37;
+  --gold-soft: #e8d38f;
+  --royal-red: #e11d48;
+
   --font-display: "Cormorant Garamond", "Playfair Display", serif;
   --font-sans: "Outfit", "Inter", sans-serif;
 }
 
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.14 0.005 30);
-  --foreground: oklch(0.96 0.01 80);
-  --card: oklch(0.18 0.008 40);
-  --card-foreground: oklch(0.96 0.01 80);
-  --popover: oklch(0.16 0.008 40);
-  --popover-foreground: oklch(0.96 0.01 80);
-  --primary: oklch(0.78 0.14 75);              /* gold */
-  --primary-foreground: oklch(0.14 0.005 30);
-  --secondary: oklch(0.22 0.01 40);
-  --secondary-foreground: oklch(0.96 0.01 80);
-  --muted: oklch(0.22 0.01 40);
-  --muted-foreground: oklch(0.72 0.02 80);
-  --accent: oklch(0.55 0.22 27);               /* royal red */
-  --accent-foreground: oklch(0.98 0.01 80);
-  --destructive: oklch(0.55 0.22 27);
-  --destructive-foreground: oklch(0.98 0.01 80);
-  --border: oklch(0.28 0.015 60 / 60%);
-  --input: oklch(0.24 0.012 50);
-  --ring: oklch(0.78 0.14 75);
-
-  --gold: oklch(0.82 0.15 78);
-  --gold-soft: oklch(0.72 0.11 75);
-  --royal-red: oklch(0.52 0.22 25);
-
-  --gradient-gold: linear-gradient(135deg, oklch(0.86 0.16 82), oklch(0.66 0.14 60));
-  --gradient-royal: linear-gradient(135deg, oklch(0.52 0.22 25), oklch(0.30 0.10 30));
-  --gradient-hero: radial-gradient(ellipse at top, oklch(0.25 0.05 30 / 80%), transparent 60%),
-                   linear-gradient(180deg, oklch(0.12 0.005 30), oklch(0.08 0.005 30));
-  --shadow-gold: 0 10px 40px -10px oklch(0.78 0.14 75 / 35%);
-  --shadow-royal: 0 20px 60px -20px oklch(0.52 0.22 25 / 50%);
-  --shadow-card: 0 8px 30px -10px oklch(0 0 0 / 60%);
-}
-
-.dark {
-  --background: oklch(0.14 0.005 30);
+  --gradient-gold: linear-gradient(135deg, #f5c24a, #d4af37, #b8972e);
+  --gradient-royal: linear-gradient(135deg, #e11d48, #be123c);
+  --shadow-gold: 0 10px 40px -15px rgb(212 175 55 / 35%);
+  --shadow-card: 0 10px 30px -10px rgb(0 0 0 / 8%);
 }
 
 @layer base {
@@ -85,7 +57,10 @@
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1, h2, h3, h4 { 
+    font-family: var(--font-display); 
+    letter-spacing: -0.02em; 
+  }
 }
 
 @layer utilities {
@@ -97,33 +72,14 @@
   }
   .bg-gradient-gold { background: var(--gradient-gold); }
   .bg-gradient-royal { background: var(--gradient-royal); }
-  .bg-hero { background: var(--gradient-hero); }
   .shadow-gold { box-shadow: var(--shadow-gold); }
-  .shadow-royal { box-shadow: var(--shadow-royal); }
   .shadow-card { box-shadow: var(--shadow-card); }
-  .border-gold { border-color: var(--gold); }
-  .ring-gold { --tw-ring-color: var(--gold); }
-
   .royal-border {
     position: relative;
-    background:
-      linear-gradient(var(--card), var(--card)) padding-box,
-      var(--gradient-gold) border-box;
+    background: linear-gradient(#ffffff, #ffffff) padding-box,
+                var(--gradient-gold) border-box;
     border: 1px solid transparent;
-  }
-
-  .marquee {
-    animation: marquee 30s linear infinite;
-  }
-  @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  .glow-gold {
-    box-shadow: 0 0 0 1px oklch(0.78 0.14 75 / 30%), 0 0 30px oklch(0.78 0.14 75 / 25%);
   }
 }
 
-/* Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");

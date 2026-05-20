@@ -14,7 +14,7 @@ function Checkout() {
   const [pay, setPay] = useState("cod");
   const [done, setDone] = useState(false);
 
-  const place = (e: React.FormEvent) => {
+  const placeOrder = (e: React.FormEvent) => {
     e.preventDefault();
     toast.success("Order placed successfully!");
     setDone(true);
@@ -23,54 +23,82 @@ function Checkout() {
 
   if (done) {
     return (
-      <section className="max-w-xl mx-auto px-4 py-24 text-center">
-        <CheckCircle2 className="mx-auto text-primary" size={64} />
-        <h1 className="font-display text-3xl mt-4">Order Confirmed!</h1>
-        <p className="text-muted-foreground mt-2">Our team will WhatsApp you shortly to confirm your order.</p>
-        <Link to="/" className="inline-flex mt-6 bg-gradient-gold text-primary-foreground px-6 py-3 rounded-md font-semibold">Back to Home</Link>
+      <section className="max-w-lg mx-auto px-4 py-24 text-center">
+        <div className="mx-auto w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
+          <CheckCircle2 className="text-emerald-600" size={52} />
+        </div>
+        <h1 className="font-display text-4xl">Order Confirmed!</h1>
+        <p className="text-muted-foreground mt-3 text-lg">
+          Thank you! Our team will WhatsApp you shortly for confirmation.
+        </p>
+        <Link
+          to="/"
+          className="mt-8 inline-flex bg-gradient-to-r from-rose-600 to-rose-700 text-white px-8 py-3.5 rounded-2xl font-semibold hover:shadow-lg transition-all"
+        >
+          Back to Home
+        </Link>
       </section>
     );
   }
 
   if (items.length === 0) {
     return (
-      <section className="max-w-xl mx-auto px-4 py-24 text-center">
+      <section className="max-w-lg mx-auto px-4 py-24 text-center">
         <h1 className="font-display text-3xl">Nothing to checkout</h1>
-        <Link to="/shop" className="inline-flex mt-6 bg-gradient-gold text-primary-foreground px-6 py-3 rounded-md font-semibold">Shop Now</Link>
+        <Link
+          to="/shop"
+          className="mt-6 inline-flex bg-gradient-to-r from-rose-600 to-rose-700 text-white px-8 py-3.5 rounded-2xl font-semibold"
+        >
+          Shop Now
+        </Link>
       </section>
     );
   }
 
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="font-display text-4xl mb-8">Checkout</h1>
-      <form onSubmit={place} className="grid lg:grid-cols-[1fr_360px] gap-8">
-        <div className="space-y-6">
-          <div className="royal-border rounded-xl p-6">
-            <h3 className="font-display text-xl mb-4">Delivery Details</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <input required placeholder="Full Name" maxLength={80} className="bg-input border border-border rounded-md px-3 py-2.5 text-sm" />
-              <input required placeholder="Phone" maxLength={15} className="bg-input border border-border rounded-md px-3 py-2.5 text-sm" />
-              <input required placeholder="Email" type="email" maxLength={120} className="bg-input border border-border rounded-md px-3 py-2.5 text-sm sm:col-span-2" />
-              <input required placeholder="Address" maxLength={200} className="bg-input border border-border rounded-md px-3 py-2.5 text-sm sm:col-span-2" />
-              <input required placeholder="City" maxLength={50} defaultValue="Nagpur" className="bg-input border border-border rounded-md px-3 py-2.5 text-sm" />
-              <input required placeholder="Pincode" maxLength={6} className="bg-input border border-border rounded-md px-3 py-2.5 text-sm" />
+      <h1 className="font-display text-4xl mb-10">Checkout</h1>
+
+      <form onSubmit={placeOrder} className="grid lg:grid-cols-[1fr_380px] gap-10">
+        {/* Left Column - Details */}
+        <div className="space-y-8">
+          {/* Delivery Details */}
+          <div className="royal-border bg-white rounded-3xl p-8">
+            <h3 className="font-display text-2xl mb-6">Delivery Details</h3>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <input required placeholder="Full Name" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
+              <input required placeholder="Phone Number" maxLength={15} className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
+              <input required type="email" placeholder="Email Address" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none sm:col-span-2" />
+              <input required placeholder="Full Address" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none sm:col-span-2" />
+              <input required placeholder="City" defaultValue="Nagpur" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
+              <input required placeholder="Pincode" maxLength={6} className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
             </div>
           </div>
 
-          <div className="royal-border rounded-xl p-6">
-            <h3 className="font-display text-xl mb-4">Payment Method</h3>
-            <div className="space-y-2">
+          {/* Payment Method */}
+          <div className="royal-border bg-white rounded-3xl p-8">
+            <h3 className="font-display text-2xl mb-6">Payment Method</h3>
+            <div className="space-y-3">
               {[
-                { id: "cod", label: "Cash on Delivery", d: "Pay when you receive" },
-                { id: "upi", label: "UPI", d: "Google Pay, PhonePe, Paytm" },
-                { id: "razorpay", label: "Razorpay (Card / Netbanking)", d: "Secure online payment" },
-              ].map((o) => (
-                <label key={o.id} className={`flex items-start gap-3 p-3 rounded-md border cursor-pointer transition-colors ${pay === o.id ? "border-gold bg-secondary/50" : "border-border"}`}>
-                  <input type="radio" name="pay" value={o.id} checked={pay === o.id} onChange={(e) => setPay(e.target.value)} className="mt-1 accent-[var(--gold)]" />
+                { id: "cod", label: "Cash on Delivery", desc: "Pay when you receive the order" },
+                { id: "upi", label: "UPI Payment", desc: "Google Pay, PhonePe, Paytm, etc." },
+                { id: "razorpay", label: "Cards / Net Banking", desc: "Powered by Razorpay" },
+              ].map((option) => (
+                <label
+                  key={option.id}
+                  className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition-all ${pay === option.id ? "border-rose-600 bg-rose-50" : "border-zinc-200 hover:border-zinc-300"}`}
+                >
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={option.id}
+                    checked={pay === option.id}
+                    onChange={(e) => setPay(e.target.value)}
+                    className="mt-1 accent-rose-600"
+                  />
                   <div>
-                    <div className="font-medium">{o.label}</div>
-                    <div className="text-xs text-muted-foreground">{o.d}</div>
+                    <div className="font-semibold">{option.label}</div>
+                    <div className="text-sm text-muted-foreground">{option.desc}</div>
                   </div>
                 </label>
               ))}
@@ -78,17 +106,38 @@ function Checkout() {
           </div>
         </div>
 
-        <aside className="royal-border rounded-xl p-6 h-fit space-y-3">
-          <h3 className="font-display text-xl">Your Order</h3>
-          <div className="text-sm space-y-2">
+        {/* Order Summary Sidebar */}
+        <aside className="royal-border bg-white rounded-3xl p-8 h-fit lg:sticky lg:top-24">
+          <h3 className="font-display text-2xl mb-6">Your Order</h3>
+
+          <div className="space-y-4 text-sm">
             {items.map((i) => (
-              <div key={i.product.id} className="flex justify-between"><span className="truncate pr-2">{i.product.name} × {i.qty}</span><span>₹{i.product.price * i.qty}</span></div>
+              <div key={i.product.id} className="flex justify-between">
+                <span className="line-clamp-1 pr-3">
+                  {i.product.name} × {i.qty}
+                </span>
+                <span className="font-medium">₹{i.product.price * i.qty}</span>
+              </div>
             ))}
           </div>
-          <div className="border-t border-border pt-3 flex justify-between font-display text-xl">
-            <span>Total</span><span className="text-gradient-gold">₹{total}</span>
+
+          <div className="border-t border-zinc-200 my-6" />
+
+          <div className="flex justify-between items-baseline font-display text-3xl">
+            <span>Total</span>
+            <span className="text-gradient-gold">₹{total}</span>
           </div>
-          <button type="submit" className="w-full bg-gradient-gold text-primary-foreground font-semibold py-3 rounded-md shadow-gold">Place Order</button>
+
+          <button
+            type="submit"
+            className="mt-8 w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-4 rounded-2xl text-lg shadow-lg shadow-rose-500/30 hover:shadow-xl transition-all active:scale-[0.985]"
+          >
+            Place Order
+          </button>
+
+          <p className="text-center text-xs text-zinc-500 mt-5">
+            Secure checkout • Cash on Delivery available
+          </p>
         </aside>
       </form>
     </section>

@@ -8,34 +8,50 @@ export const Route = createFileRoute("/gifts")({
 });
 
 function Gifts() {
-  const giftProducts = products.filter((p) => p.category === "Gifts" || p.category === "Toys" || p.badge === "Gift Pack");
+  const giftProducts = products.filter(
+    (p) => p.category === "Gifts" || p.category === "Toys" || p.badge === "Gift Pack"
+  );
+
   return (
     <>
-      <section className="bg-gradient-royal text-accent-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <div className="text-xs uppercase tracking-[0.3em] opacity-80">Gift the Royal way</div>
-          <h1 className="font-display text-4xl sm:text-6xl mt-2">A Gift for Every <span className="text-gold italic">Heart</span></h1>
-          <p className="mt-4 max-w-xl mx-auto opacity-90">Curated hampers, premium accessories and thoughtful surprises for every occasion and every loved one.</p>
+      {/* Hero Banner */}
+      <section className="bg-gradient-to-br from-rose-700 to-rose-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
+          <div className="text-xs uppercase tracking-[2px] opacity-90">Thoughtful Gifting</div>
+          <h1 className="font-display text-5xl sm:text-6xl mt-3">Gifts That Speak Royal</h1>
+          <p className="mt-4 max-w-xl mx-auto text-lg opacity-90">
+            Curated premium accessories, gadgets &amp; hampers for every person and every occasion
+          </p>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
-        <h2 className="font-display text-3xl mb-6">Shop by Recipient</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <h2 className="font-display text-3xl mb-8">Shop by Recipient</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
           {giftRecipients.map((r) => (
-            <Link key={r} to="/shop" search={{ category: "Gifts" } as any} className="royal-border rounded-xl p-5 text-center hover:shadow-gold transition-shadow">
-              <div className="text-2xl">🎁</div>
-              <div className="text-sm font-medium mt-2">For {r}</div>
+            <Link
+              key={r}
+              to="/shop"
+              search={{ category: "Gifts" } as any}
+              className="royal-border bg-white rounded-3xl p-8 text-center hover:shadow-xl transition-all group"
+            >
+              <div className="text-4xl mb-4">🎁</div>
+              <div className="font-semibold text-lg group-hover:text-rose-600 transition-colors">For {r}</div>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
         <h2 className="font-display text-3xl mb-6">Shop by Occasion</h2>
         <div className="flex flex-wrap gap-3">
           {giftOccasions.map((o) => (
-            <Link key={o} to="/shop" search={{ category: "Gifts" } as any} className="border border-gold/50 text-primary px-5 py-2.5 rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors">
+            <Link
+              key={o}
+              to="/shop"
+              search={{ category: "Gifts" } as any}
+              className="px-6 py-3 border border-zinc-200 hover:border-rose-600 hover:text-rose-600 rounded-2xl text-sm font-medium transition-all"
+            >
               {o}
             </Link>
           ))}
@@ -43,9 +59,11 @@ function Gifts() {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
-        <h2 className="font-display text-3xl mb-6">Featured Gift Picks</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {giftProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+        <h2 className="font-display text-3xl mb-8">Featured Gift Picks</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {giftProducts.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
         </div>
       </section>
     </>

@@ -1,4 +1,5 @@
-@import "tailwindcss" source(none);
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
 @source "../src";
 @import "tw-animate-css";
 
@@ -82,4 +83,41 @@
   }
 }
 
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap");
+
+@keyframes shine {
+  0% { transform: translateX(-150%); }
+  20% { transform: translateX(300%); }
+  100% { transform: translateX(300%); }
+}
+
+.luxury-gold-text {
+  background: linear-gradient(90deg, 
+    #f4d38f 0%, 
+    #ffe8a3 20%, 
+    #ffcc33 45%, 
+    #f4b400 60%, 
+    #d89b00 80%, 
+    #b87900 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  position: relative;
+  display: inline-block;
+}
+
+.luxury-gold-text::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -150%;
+  width: 40%;
+  height: 300%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.9),
+    transparent
+  );
+  animation: shine 4s infinite linear;
+  pointer-events: none;
+}

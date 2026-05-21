@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingCart, Menu, X, Search } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
-import logo from "@/assets/logo.png";
+import logo from "../../public/logoNoBG.png";
 
 const links = [
   { to: "/", label: "Home" },

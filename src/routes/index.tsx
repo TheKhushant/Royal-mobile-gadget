@@ -1,12 +1,46 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, BadgeCheck, Sparkles, Truck, Shield, Gift, Star } from "lucide-react";
+import { ArrowRight, BadgeCheck, Sparkles, Truck, Shield, Gift, Star, Trophy } from "lucide-react";
 import hero from "@/assets/hero.jpg";
 import { categories, products, reviews } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import { useEffect, useState } from "react";
+// import { Bot } from "lucide-react";
+import toyPhoto from "@/assets/Royal Imgs/ele.png";
 
 export const Route = createFileRoute("/")({ component: Home });
+function HeroSlider() {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // Auto import all images from Flash cards folder
+  const flashCards = Object.values(
+    import.meta.glob("@/assets/Flash cards/*.{png,jpg,jpeg}", {
+      eager: true,
+      as: "url",
+    })
+  );
+
+  // Change image every 3 sec
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % flashCards.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [flashCards.length]);
+
+  return (
+    <motion.img
+      key={currentImage}
+      src={flashCards[currentImage]}
+      alt="Royal accessories"
+      className="w-full h-auto"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}
+    />
+  );
+}
 
 function Countdown() {
   const [t, setT] = useState({ h: 0, m: 0, s: 0 });
@@ -35,18 +69,118 @@ function Countdown() {
   return <div className="flex gap-3 justify-center">{box(t.h, "Hours")}{box(t.m, "Min")}{box(t.s, "Sec")}</div>;
 }
 
+// floting photo component
+function FloatingToy() {
+  const [showMessage, setShowMessage] = useState(true);
+  const [currentToy, setCurrentToy] = useState(0);
+
+  // Auto import all images from HomeToys folder
+  const toys = Object.values(
+    import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
+      eager: true,
+      as: "url",
+    })
+  );
+
+  // Hide hello message after 4 sec
+  useEffect(() => {
+    const timer = setTimeout(() => setShowMessage(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Change toy every 5 sec
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentToy((prev) => (prev + 1) % toys.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [toys.length]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6 }}
+      className="absolute right-6 top-[100px] z-50 flex items-center gap-3"
+    >
+      {/* Hello bubble */}
+      {showMessage && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="bg-white px-4 py-2 rounded-2xl shadow-lg border text-sm font-medium text-zinc-800"
+        >
+          Hello 👋
+        </motion.div>
+      )}
+
+      {/* Toy image */}
+      <motion.img
+        key={currentToy}
+        src={toys[currentToy]}
+        alt="Toy"
+        animate={{ y: [0, -8, 0] }}
+        transition={{ repeat: Infinity, duration: 2 }}
+        className="w-24 h-24 object-cover rounded-2xl shadow-xl rotate-[-12deg] hover:rotate-0 transition-transform duration-300 cursor-pointer"
+      />
+    </motion.div>
+  );
+}
+
+// Toy Say Hi component
+// function FloatingToy() {
+//   const [showMessage, setShowMessage] = useState(true);
+
+//   useEffect(() => {
+//     const timer = setTimeout(() => setShowMessage(false), 4000);
+//     return () => clearTimeout(timer);
+//   }, []);
+
+//   return (
+    
+//     <motion.div
+//       initial={{ opacity: 0, x: 50 }}
+//       animate={{ opacity: 1, x: 0 }}
+//       transition={{ duration: 0.6 }}
+//       className="fixed right-6 top-[200px] z-50 flex items-center gap-3"
+//     >
+//       {/* Hello Message */}
+//       {showMessage && (
+//         <motion.div
+//           initial={{ scale: 0 }}
+//           animate={{ scale: 1 }}
+//           className="bg-white px-4 py-2 rounded-2xl shadow-lg border text-sm font-medium text-zinc-800"
+//         >
+//           Hello 👋
+//         </motion.div>
+//       )}
+
+//       {/* Toy */}
+//       <motion.div
+//         animate={{ y: [0, -8, 0] }}
+//         transition={{ repeat: Infinity, duration: 2 }}
+//         className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-amber-500 shadow-xl flex items-center justify-center text-white cursor-pointer"
+//       >
+//         <Bot size={30} />
+//       </motion.div>
+//     </motion.div>
+//   );
+// }
+
 function Home() {
   const trending = products.slice(0, 8);
   const featured = categories.slice(0, 6);
 
   return (
     <>
+    <FloatingToy />
       {/* HERO */}
-      <section className="relative overflow-hidden bg-white pt-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-20 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative overflow-hidden bg-white ">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-20 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <div className="inline-flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-100 rounded-full px-4 py-1 text-xs font-medium mb-6">
-              <Sparkles size={15} /> Nagpur's Most Trusted Store
+              <Trophy size={15} /> Nagpur's Most Trusted Store
             </div>
 
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tighter">
@@ -58,20 +192,21 @@ function Home() {
               Handpicked collection of earbuds, smartwatches, chargers, power banks, and luxurious gift hampers.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link
-                to="/shop"
-                className="bg-gradient-to-r from-rose-600 to-rose-700 text-white px-8 py-4 rounded-2xl font-semibold inline-flex items-center gap-2 shadow-lg shadow-rose-500/30 hover:shadow-xl transition-all"
-              >
-                Shop Now <ArrowRight size={20} />
-              </Link>
-              <Link
-                to="/gifts"
-                className="border border-zinc-300 hover:border-rose-600 text-zinc-800 px-8 py-4 rounded-2xl font-semibold inline-flex items-center gap-2 transition-all"
-              >
-                <Gift size={20} /> Gift Store
-              </Link>
-            </div>
+           <div className="mt-8 flex flex-nowrap gap-2 overflow-x-auto">
+          <Link
+            to="/shop"
+            className="whitespace-nowrap bg-gradient-to-r from-rose-600 to-rose-700 text-white px-6 py-3 rounded-2xl font-semibold inline-flex items-center gap-2 shadow-lg shadow-rose-500/30 hover:shadow-xl transition-all shrink-0"
+          >
+            Shop Now <ArrowRight size={20} />
+          </Link>
+
+          <Link
+            to="/gifts"
+            className="whitespace-nowrap border border-zinc-300 hover:border-rose-600 text-zinc-800 px-5 py-3 rounded-2xl font-semibold inline-flex items-center gap-2 transition-all shrink-0"
+          >
+            <Gift size={20} /> Gift Store
+          </Link>
+        </div>
 
             <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-zinc-600">
               <span className="inline-flex items-center gap-2"><BadgeCheck className="text-emerald-600" size={18} /> 100% Genuine</span>
@@ -81,8 +216,9 @@ function Home() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="relative">
+            
             <div className="relative rounded-3xl overflow-hidden border border-zinc-100 shadow-2xl">
-              <img src={hero} alt="Royal accessories" className="w-full h-auto" />
+              <HeroSlider />
             </div>
 
             {/* Flash Sale Card */}
@@ -95,7 +231,7 @@ function Home() {
         </div>
 
         {/* Marquee */}
-        <div className="border-y border-zinc-100 bg-zinc-50 py-4 overflow-hidden">
+        {/* <div className="border-y border-zinc-100 bg-zinc-50 py-4 overflow-hidden">
           <div className="marquee flex gap-12 whitespace-nowrap text-sm text-zinc-600">
             {Array.from({ length: 2 }).map((_, k) => (
               <div key={k} className="flex gap-12 px-6">
@@ -105,7 +241,7 @@ function Home() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </section>
 
       {/* FEATURED CATEGORIES */}

@@ -1,3 +1,16 @@
+import {
+  Smartphone,
+  Cpu,
+  Laptop,
+  Mouse,
+  Watch,
+  Headphones,
+  Speaker,
+  ToyBrick,
+  Gift,
+  LucideIcon,
+} from "lucide-react";
+
 export type Product = {
   id: string;
   name: string;
@@ -34,17 +47,35 @@ export const products: Product[] = [
   { id: "p16", name: "Magnetic Phone Holder", category: "Mobile Accessories", price: 299, mrp: 699, rating: 4.4, image: img("1574944985070-8f3ebc6b79d2", 16), description: "Strong magnet car & desk mount.", specs: ["N52 Magnet", "360° Rotate"] },
 ];
 
-export const categories = [
-  { slug: "Mobile Accessories", icon: "📱" },
-  { slug: "Gadgets", icon: "🎛️" },
-  { slug: "Laptop Accessories", icon: "💻" },
-  { slug: "Computer Accessories", icon: "🖱️" },
-  { slug: "Smart Watches", icon: "⌚" },
-  { slug: "Earbuds", icon: "🎧" },
-  { slug: "Bluetooth Speakers", icon: "🔊" },
-  { slug: "Toys", icon: "🧸" },
-  { slug: "Gifts", icon: "🎁" },
+// export const categories = [
+//   { slug: "Mobile Accessories", icon: Smartphone },
+//   { slug: "Gadgets", icon: Cpu },
+//   { slug: "Laptop Accessories", icon: Laptop },
+//   { slug: "Computer Accessories", icon: Mouse },
+//   { slug: "Smart Watches", icon: Watch },
+//   { slug: "Earbuds", icon: Headphones },
+//   { slug: "Bluetooth Speakers", icon: Speaker },
+//   { slug: "Toys", icon: ToyBrick },
+//   { slug: "Gifts", icon: Gift },
+// ];
+
+type Category = {
+  slug: string;
+  icon: LucideIcon;
+};
+
+export const categories: Category[] = [
+  { slug: "Mobile Accessories", icon: Smartphone },
+  { slug: "Gadgets", icon: Cpu },
+  { slug: "Laptop Accessories", icon: Laptop },
+  { slug: "Computer Accessories", icon: Mouse },
+  { slug: "Smart Watches", icon: Watch },
+  { slug: "Earbuds", icon: Headphones },
+  { slug: "Bluetooth Speakers", icon: Speaker },
+  { slug: "Toys", icon: ToyBrick },
+  { slug: "Gifts", icon: Gift },
 ];
+
 
 export const giftRecipients = ["Baby", "Boyfriend", "Girlfriend", "Mom", "Dad", "Sister", "Husband", "Wife"];
 export const giftOccasions = ["Birthday", "Marriage", "Reception", "Anniversary", "Valentine", "Raksha Bandhan", "Baby Shower"];

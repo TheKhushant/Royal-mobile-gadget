@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { categories, products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
@@ -15,24 +15,47 @@ export const Route = createFileRoute("/shop")({
 
 function Shop() {
   const { category } = Route.useSearch();
+
+  const navigate = Route.useNavigate();
+
   const [active, setActive] = useState<string | undefined>(category);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("featured");
 
+  // Sync URL category with local state when URL changes
+  useEffect(() => {
+    setActive(category);
+  }, [category]);
+
   const filtered = useMemo(() => {
     let list = [...products];
-    if (active) list = list.filter((p) => p.category === active);
+
+    if (active) {
+      list = list.filter((p) => p.category === active);
+    }
+
     if (q.trim()) {
+      const term = q.toLowerCase();
       list = list.filter((p) =>
-        p.name.toLowerCase().includes(q.toLowerCase()) ||
-        p.category.toLowerCase().includes(q.toLowerCase())
+        p.name.toLowerCase().includes(term) ||
+        p.category.toLowerCase().includes(term)
       );
     }
+
+    // Sorting
     if (sort === "low") list.sort((a, b) => a.price - b.price);
     if (sort === "high") list.sort((a, b) => b.price - a.price);
     if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
+
     return list;
   }, [active, q, sort]);
+
+  const clearFilters = () => {
+    setQ("");
+    setActive(undefined);
+    // Optionally update URL
+    navigate({ search: {} });
+  };
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -56,7 +79,10 @@ function Shop() {
               className="w-full bg-white border border-zinc-200 rounded-2xl pl-11 py-3.5 text-sm focus:border-rose-300 focus:outline-none"
             />
             {q && (
-              <button onClick={() => setQ("")} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600">
+              <button
+                onClick={() => setQ("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              >
                 <X size={18} />
               </button>
             )}
@@ -83,19 +109,30 @@ function Shop() {
             <div className="space-y-1">
               <button
                 onClick={() => setActive(undefined)}
-                className={`w-full text-left px-5 py-3 rounded-2xl text-sm transition-all ${!active ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"}`}
+                className={`w-full text-left px-5 py-3 rounded-2xl text-sm transition-all ${
+                  !active ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"
+                }`}
               >
                 All Products
               </button>
-              {categories.map((c) => (
-                <button
-                  key={c.slug}
-                  onClick={() => setActive(c.slug)}
-                  className={`w-full text-left px-5 py-3 rounded-2xl text-sm flex items-center gap-3 transition-all ${active === c.slug ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"}`}
-                >
-                  <span className="text-xl">{c.icon}</span> {c.slug}
-                </button>
-              ))}
+
+              {categories.map((c) => {
+                const Icon = c.icon; // Important: Get the component
+                return (
+                  <button
+                    key={c.slug}
+                    onClick={() => setActive(c.slug)}
+                    className={`w-full text-left px-5 py-3 rounded-2xl text-sm flex items-center gap-3 transition-all ${
+                      active === c.slug ? "bg-rose-50 text-rose-700 font-medium" : "hover:bg-zinc-100"
+                    }`}
+                  >
+                    <div className="text-rose-500">
+                      <Icon size={22} />
+                    </div>
+                    {c.slug}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </aside>
@@ -105,8 +142,11 @@ function Shop() {
           {filtered.length === 0 ? (
             <div className="text-center py-20">
               <p className="text-xl text-zinc-400">No products found</p>
-              <button onClick={() => { setQ(""); setActive(undefined); }} className="mt-4 text-rose-600 underline">
-                Clear filters
+              <button
+                onClick={clearFilters}
+                className="mt-4 text-rose-600 hover:text-rose-700 underline"
+              >
+                Clear all filters
               </button>
             </div>
           ) : (

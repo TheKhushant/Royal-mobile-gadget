@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ShoppingCart, Menu, X, Search } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/lib/cart";
-import logo from "../../public/logoGoldNoBG.png";
+
 
 const links = [
   { to: "/", label: "Home" },
@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
           <img
-            src={logo}
+            src="/logoGoldNoBG.png"
             alt="Royal Mobile Accessories"
             width={38}
             height={38}

@@ -104,7 +104,7 @@ function FloatingToy() {
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6 }}
-      className="absolute right-6 top-[100px] z-50 flex items-center gap-3"
+      className="absolute right-6 top-[145px] z-50 flex items-center gap-3"
     >
       {/* Hello bubble */}
       {showMessage && (
@@ -130,46 +130,6 @@ function FloatingToy() {
   );
 }
 
-// Toy Say Hi component
-// function FloatingToy() {
-//   const [showMessage, setShowMessage] = useState(true);
-
-//   useEffect(() => {
-//     const timer = setTimeout(() => setShowMessage(false), 4000);
-//     return () => clearTimeout(timer);
-//   }, []);
-
-//   return (
-    
-//     <motion.div
-//       initial={{ opacity: 0, x: 50 }}
-//       animate={{ opacity: 1, x: 0 }}
-//       transition={{ duration: 0.6 }}
-//       className="fixed right-6 top-[200px] z-50 flex items-center gap-3"
-//     >
-//       {/* Hello Message */}
-//       {showMessage && (
-//         <motion.div
-//           initial={{ scale: 0 }}
-//           animate={{ scale: 1 }}
-//           className="bg-white px-4 py-2 rounded-2xl shadow-lg border text-sm font-medium text-zinc-800"
-//         >
-//           Hello 👋
-//         </motion.div>
-//       )}
-
-//       {/* Toy */}
-//       <motion.div
-//         animate={{ y: [0, -8, 0] }}
-//         transition={{ repeat: Infinity, duration: 2 }}
-//         className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 to-amber-500 shadow-xl flex items-center justify-center text-white cursor-pointer"
-//       >
-//         <Bot size={30} />
-//       </motion.div>
-//     </motion.div>
-//   );
-// }
-
 function Home() {
   const trending = products.slice(0, 8);
   const featured = categories.slice(0, 6);
@@ -177,74 +137,172 @@ function Home() {
   return (
     <>
     <FloatingToy />
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-white ">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-20 lg:py-24 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 bg-rose-50 text-rose-700 border border-rose-100 rounded-full px-4 py-1 text-xs font-medium mb-6">
-              <Trophy size={15} /> Nagpur's Most Trusted Store
-            </div>
+    {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-rose-50 to-amber-50">
 
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.05] tracking-tighter">
-              Premium Accessories,<br />
-              <span className="text-gradient-gold">Gadgets</span> &amp; <span className="italic">Gifts</span>
-            </h1>
+  {/* Animated Background Blobs */}
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <motion.div
+      animate={{ y: [0, -30, 0], x: [0, 20, 0] }}
+      transition={{ duration: 8, repeat: Infinity }}
+      className="absolute top-10 left-10 w-48 h-48 bg-rose-200/30 rounded-full blur-3xl"
+    />
+    <motion.div
+      animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
+      transition={{ duration: 10, repeat: Infinity }}
+      className="absolute bottom-10 right-10 w-64 h-64 bg-amber-200/30 rounded-full blur-3xl"
+    />
+    <motion.div
+      animate={{ scale: [1, 1.2, 1] }}
+      transition={{ duration: 6, repeat: Infinity }}
+      className="absolute top-1/2 left-1/2 w-72 h-72 bg-rose-100/20 rounded-full blur-3xl"
+    />
+  </div>
 
-            <p className="mt-6 text-lg text-zinc-600 max-w-lg">
-              Handpicked collection of earbuds, smartwatches, chargers, power banks, and luxurious gift hampers.
-            </p>
+  <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-10 lg:py-16 grid lg:grid-cols-2 gap-8 items-center">
 
-           <div className="mt-8 flex flex-nowrap gap-2 overflow-x-auto">
+    {/* LEFT */}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+
+      {/* Live Badge */}
+      <motion.div
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md text-rose-700 border border-rose-200 rounded-full px-4 py-2 text-xs font-semibold shadow-md mb-5"
+      >
+        <Trophy size={14} />
+        Nagpur's Most Trusted Store
+      </motion.div>
+
+      {/* Heading */}
+      <motion.h1
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.8 }}
+        className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight tracking-tight"
+      >
+        Premium <br />
+        Accessories, <br />
+        <motion.span
+          animate={{
+            backgroundPosition: ["0%", "100%", "0%"],
+          }}
+          transition={{ duration: 5, repeat: Infinity }}
+          className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 via-amber-400 to-rose-500 bg-[length:200%_200%]"
+        >
+          Gadgets
+        </motion.span>{" "}
+        & <span className="italic text-rose-700">Gifts</span>
+      </motion.h1>
+
+      {/* Description */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="mt-4 text-sm sm:text-base text-zinc-600 max-w-md leading-relaxed"
+      >
+        Handpicked collection of earbuds, smartwatches, chargers, power banks,
+        and luxurious gift hampers crafted for modern lifestyle.
+      </motion.p>
+
+      {/* Buttons */}
+      <div className="mt-6 flex flex-nowrap gap-3 overflow-x-auto">
+
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Link
             to="/shop"
-            className="whitespace-nowrap bg-gradient-to-r from-rose-600 to-rose-700 text-white px-6 py-3 rounded-2xl font-semibold inline-flex items-center gap-2 shadow-lg shadow-rose-500/30 hover:shadow-xl transition-all shrink-0"
+            className="relative whitespace-nowrap bg-gradient-to-r from-rose-600 to-rose-700 text-white px-5 py-3 rounded-2xl text-sm font-semibold inline-flex items-center gap-2 shadow-lg shadow-rose-500/30 overflow-hidden shrink-0"
           >
-            Shop Now <ArrowRight size={20} />
+            <motion.span
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 bg-white/20 skew-x-12"
+            />
+            Shop Now <ArrowRight size={16} />
           </Link>
+        </motion.div>
 
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Link
             to="/gifts"
-            className="whitespace-nowrap border border-zinc-300 hover:border-rose-600 text-zinc-800 px-5 py-3 rounded-2xl font-semibold inline-flex items-center gap-2 transition-all shrink-0"
+            className="whitespace-nowrap bg-white/70 backdrop-blur-md border border-zinc-300 hover:border-rose-500 text-zinc-800 px-5 py-3 rounded-2xl text-sm font-semibold inline-flex items-center gap-2 shadow-md shrink-0"
           >
-            <Gift size={20} /> Gift Store
+            <Gift size={16} /> Gift Store
           </Link>
+        </motion.div>
+      </div>
+
+      {/* Feature Pills */}
+      <div className="mt-6 flex flex-wrap gap-3 text-xs">
+
+        <motion.span
+          whileHover={{ y: -3 }}
+          className="inline-flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm text-zinc-700"
+        >
+          <BadgeCheck className="text-emerald-600" size={14} />
+          100% Genuine
+        </motion.span>
+
+        <motion.span
+          whileHover={{ y: -3 }}
+          className="inline-flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm text-zinc-700"
+        >
+          <Truck className="text-rose-600" size={14} />
+          Same Day Delivery
+        </motion.span>
+
+        <motion.span
+          whileHover={{ y: -3 }}
+          className="inline-flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm text-zinc-700"
+        >
+          <Shield className="text-amber-600" size={14} />
+          Warranty Assured
+        </motion.span>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="mt-8 flex gap-4 flex-wrap">
+        <div className="bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl shadow-md">
+          <div className="text-xl font-bold text-rose-600">10K+</div>
+          <div className="text-xs text-zinc-500">Happy Customers</div>
         </div>
 
-            <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-zinc-600">
-              <span className="inline-flex items-center gap-2"><BadgeCheck className="text-emerald-600" size={18} /> 100% Genuine</span>
-              <span className="inline-flex items-center gap-2"><Truck className="text-rose-600" size={18} /> Same Day Delivery</span>
-              <span className="inline-flex items-center gap-2"><Shield className="text-amber-600" size={18} /> Warranty Assured</span>
-            </div>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8 }} className="relative">
-            
-            <div className="relative h-[250px] rounded-3xl overflow-hidden border border-zinc-100 flex items-center justify-center">
-              <HeroSlider />
-            </div>
-
-            {/* Flash Sale Card */}
-            {/* <div className="absolute -bottom-6 -left-4 bg-white royal-border rounded-3xl p-6 shadow-xl hidden sm:block">
-              <div className="text-xs uppercase tracking-widest text-rose-600">Festive Flash Sale</div>
-              <div className="font-display text-2xl text-gradient-gold mt-1">Up to 70% OFF</div>
-              <div className="mt-4"><Countdown /></div>
-            </div> */}
-          </motion.div>
+        <div className="bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl shadow-md">
+          <div className="text-xl font-bold text-amber-600">500+</div>
+          <div className="text-xs text-zinc-500">Premium Products</div>
         </div>
 
-        {/* Marquee */}
-        {/* <div className="border-y border-zinc-100 bg-zinc-50 py-4 overflow-hidden">
-          <div className="marquee flex gap-12 whitespace-nowrap text-sm text-zinc-600">
-            {Array.from({ length: 2 }).map((_, k) => (
-              <div key={k} className="flex gap-12 px-6">
-                {["🚚 Free Delivery on orders above ₹499", "🎁 Free Gift Wrapping", "⭐ 10,000+ Happy Customers", "🔥 Diwali Sale Live", "💳 UPI • Cards • COD"].map((t, i) => (
-                  <span key={i}>• {t}</span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div> */}
-      </section>
+        <div className="bg-white/80 backdrop-blur-md px-4 py-3 rounded-2xl shadow-md">
+          <div className="text-xl font-bold text-emerald-600">4.9★</div>
+          <div className="text-xs text-zinc-500">Customer Rating</div>
+        </div>
+      </div>
+
+    </motion.div>
+
+    {/* RIGHT SIDE - Hero Slider */}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1 }}
+      className="relative"
+    >
+      <motion.div
+        animate={{ y: [0, -10, 0] }}
+        transition={{ duration: 4, repeat: Infinity }}
+        className="relative h-auto max-h-[350px] sm:h-[400px] rounded-3xl overflow-hidden border border-white/50 shadow-2xl backdrop-blur-lg flex items-center justify-center"
+      >
+        <HeroSlider />
+      </motion.div>
+    </motion.div>
+
+  </div>
+</section>
 
       {/* FEATURED CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -387,91 +445,179 @@ function Home() {
       {/* TRENDING PRODUCTS */}
       <section className="max-w-7xl mx-auto px-2 sm:px-6 py-8 sm:py-16">
 
-  {/* Heading */}
-  <div className="flex items-end justify-between mb-4 sm:mb-8">
-    <div>
-      <div className="text-[9px] sm:text-xs uppercase tracking-widest text-rose-600">
-        Hot Right Now
-      </div>
-      <h2 className="font-display text-lg sm:text-3xl md:text-4xl mt-1">
-        Trending Products
-      </h2>
-    </div>
+        {/* Heading */}
+        <div className="flex items-end justify-between mb-4 sm:mb-8">
+          <div>
+            <div className="text-[9px] sm:text-xs uppercase tracking-widest text-rose-600">
+              Hot Right Now
+            </div>
+            <h2 className="font-display text-lg sm:text-3xl md:text-4xl mt-1">
+              Trending Products
+            </h2>
+          </div>
 
-    <Link
-      to="/shop"
-      className="text-[10px] sm:text-sm text-rose-600 inline-flex items-center gap-1"
-    >
-      View All <ArrowRight size={12} className="sm:w-4 sm:h-4" />
-    </Link>
-  </div>
+          <Link
+            to="/shop"
+            className="text-[10px] sm:text-sm text-rose-600 inline-flex items-center gap-1"
+          >
+            View All <ArrowRight size={12} className="sm:w-4 sm:h-4" />
+          </Link>
+        </div>
 
-  {/* Products Grid */}
-  <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
-    {trending.map((p) => (
-      <ProductCard key={p.id} product={p} />
-    ))}
-  </div>
-</section>
+        {/* Products Grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+          {trending.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </section>
 
       {/* WHY US */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 bg-zinc-50">
-        <div className="text-center mb-12">
-          <div className="text-xs uppercase tracking-widest text-rose-600">The Royal Promise</div>
-          <h2 className="font-display text-4xl mt-2">Why Choose Us</h2>
+      <section className="max-w-7xl mx-auto px-2 sm:px-6 py-8 sm:py-16 bg-zinc-50">
+
+      {/* Heading */}
+      <div className="text-center mb-6 sm:mb-12">
+        <div className="text-[9px] sm:text-xs uppercase tracking-widest text-rose-600">
+          The Royal Promise
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: BadgeCheck, title: "100% Genuine", desc: "Every product is brand authentic with original warranty" },
-            { icon: Truck, title: "Fast Delivery", desc: "Same-day delivery in Nagpur & PAN-India shipping" },
-            { icon: Shield, title: "Trusted Service", desc: "10+ years serving Nagpur with excellence" },
-            { icon: Gift, title: "Custom Orders", desc: "Special sourcing for anything you desire" },
-          ].map(({ icon: Icon, title, desc }, idx) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.08 }}
-              className="royal-border bg-white rounded-3xl p-8"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center text-white">
-                <Icon size={28} />
-              </div>
-              <div className="font-display text-2xl mt-6">{title}</div>
-              <p className="text-zinc-600 mt-2">{desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+        <h2 className="font-display text-xl sm:text-3xl md:text-4xl mt-1 sm:mt-2">
+          Why Choose Us
+        </h2>
+      </div>
+
+      {/* Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6">
+        {[
+          {
+            icon: BadgeCheck,
+            title: "100% Genuine",
+            desc: "Original warranty"
+          },
+          {
+            icon: Truck,
+            title: "Fast Delivery",
+            desc: "Same-day shipping"
+          },
+          {
+            icon: Shield,
+            title: "Trusted Service",
+            desc: "10+ years excellence"
+          },
+          {
+            icon: Gift,
+            title: "Custom Orders",
+            desc: "Special sourcing"
+          },
+        ].map(({ icon: Icon, title, desc }, idx) => (
+          <motion.div
+            key={title}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: idx * 0.08 }}
+            className="royal-border bg-white rounded-xl sm:rounded-3xl p-3 sm:p-8 text-center sm:text-left"
+          >
+            {/* Icon */}
+            <div className="w-8 h-8 sm:w-14 sm:h-14 mx-auto sm:mx-0 rounded-lg sm:rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-600 flex items-center justify-center text-white">
+              <Icon size={14} className="sm:w-7 sm:h-7" />
+            </div>
+
+            {/* Title */}
+            <div className="font-display text-[11px] sm:text-2xl mt-2 sm:mt-6 leading-tight">
+              {title}
+            </div>
+
+            {/* Description */}
+            <p className="text-[9px] sm:text-base text-zinc-600 mt-1 sm:mt-2 line-clamp-2">
+              {desc}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
 
       {/* REVIEWS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="text-center mb-12">
-          <div className="text-xs uppercase tracking-widest text-rose-600">Loved by Nagpur</div>
-          <h2 className="font-display text-4xl mt-2">Customer Reviews</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 overflow-hidden">
+  <div className="text-center mb-6">
+    <div className="text-xs uppercase tracking-widest text-rose-600">
+      Loved by Nagpur
+    </div>
+    <h2 className="font-display text-2xl sm:text-3xl mt-1">
+      Customer Reviews
+    </h2>
+  </div>
+
+  {/* Row 1 */}
+  <div className="overflow-hidden mb-2">
+    <motion.div
+      className="flex gap-3 w-max"
+      animate={{ x: ["0%", "-50%"] }}
+      transition={{
+        repeat: Infinity,
+        duration: 22,
+        ease: "linear",
+      }}
+    >
+      {[...reviews, ...reviews].map((r, i) => (
+        <div
+          key={`top-${i}`}
+          className="w-[220px] shrink-0 royal-border bg-white rounded-xl p-3"
+        >
+          {/* Stars */}
+          <div className="flex text-amber-500 mb-2">
+            {Array.from({ length: r.rating }).map((_, k) => (
+              <Star key={k} size={12} fill="currentColor" />
+            ))}
+          </div>
+
+          {/* Review */}
+          <p className="text-zinc-700 text-xs leading-snug line-clamp-3">
+            "{r.text}"
+          </p>
+
+          {/* Name */}
+          <div className="mt-2 text-xs font-medium text-rose-600">
+            — {r.name}
+          </div>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {reviews.map((r, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="royal-border bg-white rounded-3xl p-8"
-            >
-              <div className="flex text-amber-500 mb-4">
-                {Array.from({ length: r.rating }).map((_, k) => (
-                  <Star key={k} size={18} fill="currentColor" />
-                ))}
-              </div>
-              <p className="text-zinc-700 leading-relaxed">"{r.text}"</p>
-              <div className="mt-6 text-sm font-medium text-rose-600">— {r.name}</div>
-            </motion.div>
-          ))}
+      ))}
+    </motion.div>
+  </div>
+
+  {/* Row 2 */}
+  <div className="overflow-hidden">
+    <motion.div
+      className="flex gap-3 w-max"
+      animate={{ x: ["-50%", "0%"] }}
+      transition={{
+        repeat: Infinity,
+        duration: 22,
+        ease: "linear",
+      }}
+    >
+      {[...reviews, ...reviews].map((r, i) => (
+        <div
+          key={`bottom-${i}`}
+          className="w-[220px] shrink-0 royal-border bg-white rounded-xl p-3"
+        >
+          <div className="flex text-amber-500 mb-2">
+            {Array.from({ length: r.rating }).map((_, k) => (
+              <Star key={k} size={12} fill="currentColor" />
+            ))}
+          </div>
+
+          <p className="text-zinc-700 text-xs leading-snug line-clamp-3">
+            "{r.text}"
+          </p>
+
+          <div className="mt-2 text-xs font-medium text-rose-600">
+            — {r.name}
+          </div>
         </div>
-      </section>
+      ))}
+    </motion.div>
+  </div>
+</section>
     </>
   );
 }

@@ -11,11 +11,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-      className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl border border-zinc-100 hover:border-zinc-200 transition-all duration-300"
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.3 }}
+      className="group bg-white rounded-xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-zinc-100"
     >
-      {/* Image Container */}
+      {/* Image */}
       <Link
         to="/product/$id"
         params={{ id: product.id }}
@@ -25,63 +25,71 @@ export default function ProductCard({ product }: { product: Product }) {
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        {/* Badges */}
+        {/* Badge */}
         {product.badge && (
-          <span className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-yellow-500 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+          <span className="absolute top-1 left-1 sm:top-3 sm:left-3 bg-amber-500 text-white text-[7px] sm:text-[10px] px-1.5 sm:px-3 py-0.5 rounded-full font-semibold">
             {product.badge}
           </span>
         )}
 
+        {/* Discount */}
         {discount > 0 && (
-          <span className="absolute top-4 right-4 bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-2xl shadow">
+          <span className="absolute top-1 right-1 sm:top-3 sm:right-3 bg-rose-600 text-white text-[7px] sm:text-xs px-1.5 sm:px-3 py-0.5 rounded-full font-semibold">
             -{discount}%
           </span>
         )}
       </Link>
 
       {/* Content */}
-      <div className="p-5">
-        <div className="text-xs uppercase tracking-widest text-zinc-500 font-medium">
+      <div className="p-2 sm:p-5">
+        {/* Category */}
+        <div className="text-[8px] sm:text-xs uppercase tracking-wide text-zinc-500 line-clamp-1">
           {product.category}
         </div>
 
+        {/* Product Name */}
         <Link
           to="/product/$id"
           params={{ id: product.id }}
-          className="block mt-2"
+          className="block mt-1"
         >
-          <h3 className="font-semibold text-base leading-tight line-clamp-2 text-zinc-900 group-hover:text-rose-700 transition-colors">
+          <h3 className="font-medium text-[10px] sm:text-base leading-tight line-clamp-1 text-zinc-900 group-hover:text-rose-700">
             {product.name}
           </h3>
         </Link>
 
         {/* Rating */}
-        <div className="flex items-center gap-1.5 mt-2.5">
-          <div className="flex text-amber-500">
-            <Star size={14} fill="currentColor" />
-          </div>
-          <span className="text-sm font-medium text-zinc-600">{product.rating}</span>
+        <div className="flex items-center gap-1 mt-1 sm:mt-2">
+          <Star size={10} className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5" />
+          <span className="text-[9px] sm:text-sm text-zinc-600">
+            {product.rating}
+          </span>
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2 mt-3">
-          <span className="text-2xl font-semibold text-zinc-900">₹{product.price}</span>
-          <span className="text-sm line-through text-zinc-400">₹{product.mrp}</span>
+        <div className="flex flex-col sm:flex-row sm:items-baseline gap-0 sm:gap-2 mt-1 sm:mt-3">
+          <span className="text-xs sm:text-2xl font-semibold text-zinc-900">
+            ₹{product.price}
+          </span>
+          <span className="text-[8px] sm:text-sm line-through text-zinc-400">
+            ₹{product.mrp}
+          </span>
         </div>
 
-        {/* Add to Cart Button */}
+        {/* Button */}
         <button
           onClick={() => {
             add(product);
             toast.success(`${product.name} added to cart`);
           }}
-          className="mt-5 w-full bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white font-semibold py-3 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-[0.985] shadow-md shadow-rose-500/30"
+          className="mt-2 sm:mt-5 w-full bg-rose-600 hover:bg-rose-700 text-white text-[9px] sm:text-sm font-medium py-1.5 sm:py-3 rounded-lg sm:rounded-2xl flex items-center justify-center gap-1 sm:gap-2"
         >
-          <ShoppingCart size={17} />
-          Add to Cart
+          <ShoppingCart size={10} className="sm:w-4 sm:h-4" />
+          <span className="hidden sm:inline">Add to Cart</span>
+          <span className="sm:hidden">Add</span>
         </button>
       </div>
     </motion.div>

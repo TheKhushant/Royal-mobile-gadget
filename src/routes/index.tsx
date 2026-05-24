@@ -16,9 +16,10 @@ function HeroSlider() {
   const flashCards = Object.values(
     import.meta.glob("@/assets/Flash cards/*.{png,jpg,jpeg}", {
       eager: true,
-      as: "url",
+      query: "?url",
+      import: "default",
     })
-  );
+  ) as string[];
 
   // Change image every 3 sec
   useEffect(() => {
@@ -75,12 +76,13 @@ function FloatingToy() {
   const [currentToy, setCurrentToy] = useState(0);
 
   // Auto import all images from HomeToys folder
-  const toys = Object.values(
-    import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
-      eager: true,
-      as: "url",
-    })
-  );
+    const toys = Object.values(
+      import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
+        eager: true,
+        query: "?url",
+        import: "default",
+      })
+    ) as string[];
 
   // Hide hello message after 4 sec
   useEffect(() => {
@@ -291,18 +293,18 @@ function Home() {
       </section>
 
       {/* OFFER BANNERS */}
-<section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+{/* <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
   <div className="grid md:grid-cols-2 gap-8">
 
-    {/* Card 1 */}
+    {/* Card 1 
     <div className="group relative overflow-hidden rounded-[32px] bg-gradient-to-br from-rose-600 via-rose-700 to-black min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-500">
 
-      {/* Background Glow */}
+      {/* Background Glow
       <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
       <div className="relative z-10 flex flex-col sm:flex-row items-center h-full p-8 gap-6">
 
-        {/* Image */}
+        {/* Image 
         <div className="w-32 h-32 sm:w-44 sm:h-44 rounded-3xl overflow-hidden shadow-2xl shrink-0 group-hover:scale-105 transition duration-500">
           <img
             src="/images/watch.jpg"
@@ -311,7 +313,7 @@ function Home() {
           />
         </div>
 
-        {/* Content */}
+        {/* Content 
         <div className="text-white text-center sm:text-left">
           <span className="text-xs uppercase tracking-[3px] text-white/70">
             Limited Time Offer
@@ -337,15 +339,15 @@ function Home() {
       </div>
     </div>
 
-    {/* Card 2 */}
+    {/* Card 2
     <div className="group relative overflow-hidden rounded-[32px] bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-600 min-h-[320px] shadow-xl hover:shadow-2xl transition-all duration-500">
 
-      {/* Background Glow */}
+      {/* Background Glow
       <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/20 rounded-full blur-3xl"></div>
 
       <div className="relative z-10 flex flex-col sm:flex-row-reverse items-center h-full p-8 gap-6">
 
-        {/* Image */}
+        {/* Image
         <div className="w-32 h-32 sm:w-44 sm:h-44 rounded-3xl overflow-hidden shadow-2xl shrink-0 group-hover:scale-105 transition duration-500">
           <img
             src="/images/gift.jpg"
@@ -354,7 +356,7 @@ function Home() {
           />
         </div>
 
-        {/* Content */}
+        {/* Content
         <div className="text-zinc-900 text-center sm:text-left">
           <span className="text-xs uppercase tracking-[3px] text-black/60">
             Festive Collection
@@ -380,21 +382,37 @@ function Home() {
     </div>
 
   </div>
-</section>      
+</section>       */}
 
       {/* TRENDING PRODUCTS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-rose-600">Hot Right Now</div>
-            <h2 className="font-display text-4xl mt-1">Trending Products</h2>
-          </div>
-          <Link to="/shop" className="text-rose-600 inline-flex items-center gap-2 hover:gap-3 transition-all">View All <ArrowRight size={16} /></Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {trending.map((p) => <ProductCard key={p.id} product={p} />)}
-        </div>
-      </section>
+      <section className="max-w-7xl mx-auto px-2 sm:px-6 py-8 sm:py-16">
+
+  {/* Heading */}
+  <div className="flex items-end justify-between mb-4 sm:mb-8">
+    <div>
+      <div className="text-[9px] sm:text-xs uppercase tracking-widest text-rose-600">
+        Hot Right Now
+      </div>
+      <h2 className="font-display text-lg sm:text-3xl md:text-4xl mt-1">
+        Trending Products
+      </h2>
+    </div>
+
+    <Link
+      to="/shop"
+      className="text-[10px] sm:text-sm text-rose-600 inline-flex items-center gap-1"
+    >
+      View All <ArrowRight size={12} className="sm:w-4 sm:h-4" />
+    </Link>
+  </div>
+
+  {/* Products Grid */}
+  <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
+    {trending.map((p) => (
+      <ProductCard key={p.id} product={p} />
+    ))}
+  </div>
+</section>
 
       {/* WHY US */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 bg-zinc-50">

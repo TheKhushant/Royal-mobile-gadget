@@ -61,22 +61,30 @@ export default function ProductCard({ product }: { product: Product }) {
           </h3>
         </Link>
 
-        {/* Rating */}
-        <div className="flex items-center gap-1 mt-1 sm:mt-2">
-          <Star size={10} className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5" />
-          <span className="text-[9px] sm:text-sm text-zinc-600">
-            {product.rating}
-          </span>
-        </div>
+        {/* Rating + Price */}
+        <div className="flex items-center justify-between mt-1 sm:mt-3 gap-2">
 
-        {/* Price */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-0 sm:gap-2 mt-1 sm:mt-3">
-          <span className="text-xs sm:text-2xl font-semibold text-zinc-900">
-            ₹{product.price}
-          </span>
-          <span className="text-[8px] sm:text-sm line-through text-zinc-400">
-            ₹{product.mrp}
-          </span>
+          {/* Left - Rating */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Star
+              size={10}
+              className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5"
+            />
+            <span className="text-[9px] sm:text-sm text-zinc-600">
+              {product.rating}
+            </span>
+          </div>
+
+          {/* Right - Price + MRP */}
+          <div className="flex flex-col items-end leading-tight">
+            <span className="text-xs sm:text-2xl font-semibold text-zinc-900">
+              ₹{product.price}
+            </span>
+            <span className="text-[8px] sm:text-sm line-through text-zinc-400">
+              ₹{product.mrp}
+            </span>
+          </div>
+
         </div>
 
         {/* Button */}

@@ -7,13 +7,15 @@ import { toast } from "sonner";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
-  const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
+  const discount = Math.round(
+    ((product.mrp - product.price) / product.mrp) * 100
+  );
 
   return (
     <motion.div
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.3 }}
-      className="group bg-white rounded-xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-zinc-100"
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+      className="group bg-white rounded-lg sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-zinc-100"
     >
       {/* Image */}
       <Link
@@ -25,28 +27,28 @@ export default function ProductCard({ product }: { product: Product }) {
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
         {/* Badge */}
         {product.badge && (
-          <span className="absolute top-1 left-1 sm:top-3 sm:left-3 bg-amber-500 text-white text-[7px] sm:text-[10px] px-1.5 sm:px-3 py-0.5 rounded-full font-semibold">
+          <span className="absolute top-1 left-1 sm:top-3 sm:left-3 bg-amber-500 text-white text-[6px] sm:text-[10px] px-1 py-0.5 rounded-full font-medium">
             {product.badge}
           </span>
         )}
 
         {/* Discount */}
         {discount > 0 && (
-          <span className="absolute top-1 right-1 sm:top-3 sm:right-3 bg-rose-600 text-white text-[7px] sm:text-xs px-1.5 sm:px-3 py-0.5 rounded-full font-semibold">
+          <span className="absolute top-1 right-1 sm:top-3 sm:right-3 bg-rose-600 text-white text-[6px] sm:text-xs px-1 py-0.5 rounded-full font-medium">
             -{discount}%
           </span>
         )}
       </Link>
 
       {/* Content */}
-      <div className="p-2 sm:p-5">
+      <div className="p-1.5 sm:p-5">
         {/* Category */}
-        <div className="text-[8px] sm:text-xs uppercase tracking-wide text-zinc-500 line-clamp-1">
+        <div className="text-[7px] sm:text-xs uppercase tracking-wide text-zinc-500 line-clamp-1">
           {product.category}
         </div>
 
@@ -54,37 +56,36 @@ export default function ProductCard({ product }: { product: Product }) {
         <Link
           to="/product/$id"
           params={{ id: product.id }}
-          className="block mt-1"
+          className="block mt-0.5"
         >
-          <h3 className="font-medium text-[10px] sm:text-base leading-tight line-clamp-1 text-zinc-900 group-hover:text-rose-700">
+          <h3 className="font-medium text-[9px] sm:text-base leading-tight line-clamp-1 text-zinc-900 group-hover:text-rose-700">
             {product.name}
           </h3>
         </Link>
 
         {/* Rating + Price */}
-        <div className="flex items-center justify-between mt-1 sm:mt-3 gap-2">
+        <div className="flex items-center justify-between mt-1 gap-1">
 
-          {/* Left - Rating */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Rating */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
             <Star
-              size={10}
+              size={8}
               className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5"
             />
-            <span className="text-[9px] sm:text-sm text-zinc-600">
+            <span className="text-[8px] sm:text-sm text-zinc-600">
               {product.rating}
             </span>
           </div>
 
-          {/* Right - Price + MRP */}
-          <div className="flex flex-col items-end leading-tight">
-            <span className="text-xs sm:text-2xl font-semibold text-zinc-900">
+          {/* Price */}
+          <div className="flex flex-col items-end leading-none">
+            <span className="text-[10px] sm:text-2xl font-semibold text-zinc-900">
               ₹{product.price}
             </span>
-            <span className="text-[8px] sm:text-sm line-through text-zinc-400">
+            <span className="text-[7px] sm:text-sm line-through text-zinc-400">
               ₹{product.mrp}
             </span>
           </div>
-
         </div>
 
         {/* Button */}
@@ -93,13 +94,14 @@ export default function ProductCard({ product }: { product: Product }) {
             add(product);
             toast.success(`${product.name} added to cart`);
           }}
-          className="mt-2 sm:mt-5 w-full bg-rose-600 hover:bg-rose-700 text-white text-[9px] sm:text-sm font-medium py-1.5 sm:py-3 rounded-lg sm:rounded-2xl flex items-center justify-center gap-1 sm:gap-2"
+          className="mt-1.5 sm:mt-5 w-full bg-rose-600 hover:bg-rose-700 text-white text-[8px] sm:text-sm font-medium py-1 sm:py-3 rounded-md sm:rounded-2xl flex items-center justify-center gap-1"
         >
-          <ShoppingCart size={10} className="sm:w-4 sm:h-4" />
+          <ShoppingCart size={8} className="sm:w-4 sm:h-4" />
           <span className="hidden sm:inline">Add to Cart</span>
           <span className="sm:hidden">Add</span>
         </button>
       </div>
     </motion.div>
+    
   );
 }

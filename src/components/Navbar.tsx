@@ -18,24 +18,24 @@ export default function Navbar() {
   const { count } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 border-b border-zinc-100 shadow-sm">
+    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-white/55 supports-[backdrop-filter]:bg-white/45 border-b border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
       <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
 
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <nav className="max-w-7xl mx-auto px-3 sm:px-6 h-[52px] sm:h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
+        <Link to="/" className="flex items-center gap-1 sm:gap-2.5 group shrink-0">
           <img
             src="/logoGoldNoBG.png"
             alt="Royal Mobile Accessories"
-            width={38}
-            height={38}
+            width={30}
+            height={30}
             className="drop-shadow-md transition-transform group-hover:scale-105"
           />
           <div className="leading-none">
-            <div className="font-display text-2xl tracking-tight bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-clip-text text-transparent font-semibold">
+            <div className="font-display text-lg sm:text-2xl tracking-tight bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 bg-clip-text text-transparent font-semibold">
               Royal
             </div>
-            <div className="text-[10px] tracking-[1.5px] uppercase text-zinc-500 -mt-0.5">
+            <div className="text-[7px] sm:text-[10px] tracking-[1.5px] uppercase text-zinc-500 -mt-0.5">
               MOBILE ACCESSORIES
             </div>
           </div>
@@ -58,21 +58,21 @@ export default function Navbar() {
         </ul>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Link
             to="/shop"
-            className="hidden sm:flex items-center justify-center w-9 h-9 rounded-2xl hover:bg-zinc-100 text-zinc-600 hover:text-rose-600 transition-all"
+            className="hidden sm:flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/20 text-zinc-600 hover:text-rose-600 transition-all"
           >
-            <Search size={19} />
+            <Search size={16} className="sm:w-[19px] sm:h-[19px]" />
           </Link>
 
           <Link
             to="/cart"
-            className="relative flex items-center justify-center w-9 h-9 rounded-2xl hover:bg-zinc-100 text-zinc-700 hover:text-rose-600 transition-all"
+            className="relative flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/20 text-zinc-700 hover:text-rose-600 transition-all"
           >
-            <ShoppingCart size={20} />
+            <ShoppingCart size={17} className="sm:w-5 sm:h-5" />
             {count > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-semibold min-w-[18px] h-[18px] rounded-full grid place-items-center shadow">
+              <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[8px] sm:text-[10px] font-semibold min-w-[15px] h-[15px] sm:min-w-[18px] sm:h-[18px] rounded-full grid place-items-center shadow">
                 {count}
               </span>
             )}
@@ -80,23 +80,23 @@ export default function Navbar() {
 
           <button
             onClick={() => setOpen((o) => !o)}
-            className="lg:hidden p-2 rounded-2xl hover:bg-zinc-100 transition-colors"
+            className="lg:hidden p-1.5 sm:p-2 rounded-xl bg-white/40 hover:bg-white/60 backdrop-blur-md border border-white/20 transition-all"
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
+            {open ? <X size={20} className="sm:w-6 sm:h-6" /> : <Menu size={20} className="sm:w-6 sm:h-6" />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
       {open && (
-        <div className="lg:hidden border-t border-zinc-100 bg-white">
-          <ul className="px-5 py-6 space-y-1">
+        <div className="lg:hidden border-t border-white/20 bg-white/70 backdrop-blur-2xl">
+          <ul className="px-3 py-3 space-y-1">
             {links.map((l) => (
               <li key={l.to}>
                 <Link
                   to={l.to}
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-3 text-sm text-zinc-700 hover:bg-zinc-50 rounded-xl transition-colors"
+                  className="block px-3 py-2 text-xs sm:text-sm text-zinc-700 hover:bg-zinc-50 rounded-xl transition-colors"
                 >
                   {l.label}
                 </Link>

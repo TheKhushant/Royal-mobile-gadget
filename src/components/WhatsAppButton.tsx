@@ -1,22 +1,31 @@
 import { MessageCircle } from "lucide-react";
 
-export default function WhatsAppButton({ message = "Hi! I'm interested in your products." }: { message?: string }) {
-  const href = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
+export default function WhatsAppButton({
+  message = "Hi! I'm interested in your products.",
+}: {
+  message?: string;
+}) {
+  const href = `https://wa.me/919876543210?text=${encodeURIComponent(
+    message
+  )}`;
 
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white rounded-full p-4 shadow-xl hover:shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 group"
+      className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-50 bg-[#25D366] text-white rounded-full p-2.5 sm:p-4 shadow-lg hover:shadow-xl active:scale-95 transition-all duration-300 group"
       aria-label="Chat on WhatsApp"
     >
-      <MessageCircle 
-        size={28} 
-        className="group-active:rotate-12 transition-transform" 
+      {/* Icon */}
+      <MessageCircle
+        size={20}
+        className="sm:w-7 sm:h-7 group-active:rotate-12 transition-transform"
       />
-      <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-        <div className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
+
+      {/* Online Dot */}
+      <div className="absolute top-0 right-0 w-3 h-3 sm:w-4 sm:h-4 bg-white rounded-full flex items-center justify-center">
+        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#25D366] rounded-full animate-pulse" />
       </div>
     </a>
   );

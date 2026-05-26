@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
@@ -13,6 +14,7 @@ function Checkout() {
   const { items, total, clear } = useCart();
   const [pay, setPay] = useState("cod");
   const [done, setDone] = useState(false);
+  const navigate = useNavigate();
 
   const placeOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,37 +58,106 @@ function Checkout() {
   }
 
   return (
-    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="font-display text-4xl mb-10">Checkout</h1>
+    <section className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-12">
+      <h1 className="font-display text-2xl sm:text-4xl mb-5 sm:mb-10">
+        Checkout
+      </h1>
 
-      <form onSubmit={placeOrder} className="grid lg:grid-cols-[1fr_380px] gap-10">
-        {/* Left Column - Details */}
-        <div className="space-y-8">
+      <form
+        onSubmit={placeOrder}
+        className="grid lg:grid-cols-[1fr_380px] gap-5 sm:gap-10"
+      >
+        {/* Left Column */}
+        <div className="space-y-4 sm:space-y-8">
+
           {/* Delivery Details */}
-          <div className="royal-border bg-white rounded-3xl p-8">
-            <h3 className="font-display text-2xl mb-6">Delivery Details</h3>
-            <div className="grid sm:grid-cols-2 gap-5">
-              <input required placeholder="Full Name" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
-              <input required placeholder="Phone Number" maxLength={15} className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
-              <input required type="email" placeholder="Email Address" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none sm:col-span-2" />
-              <input required placeholder="Full Address" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none sm:col-span-2" />
-              <input required placeholder="City" defaultValue="Nagpur" className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
-              <input required placeholder="Pincode" maxLength={6} className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-3.5 focus:border-rose-300 outline-none" />
+          <div className="royal-border bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8">
+            <h3 className="font-display text-lg sm:text-2xl mb-4 sm:mb-6">
+              Delivery Details
+            </h3>
+
+            <div className="grid sm:grid-cols-2 gap-3 sm:gap-5">
+              <input
+                required
+                placeholder="Full Name"
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
+              />
+
+              <input
+                required
+                placeholder="Phone Number"
+                maxLength={15}
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
+              />
+
+              <input
+                required
+                type="email"
+                placeholder="Email Address"
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none sm:col-span-2"
+              />
+
+              <input
+                required
+                placeholder="Full Address"
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none sm:col-span-2"
+              />
+
+              <input
+                required
+                placeholder="City"
+                defaultValue="Nagpur"
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
+              />
+
+              <input
+                required
+                placeholder="Pincode"
+                maxLength={6}
+                className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
+              />
             </div>
+
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/payment" })}
+              className="w-full mt-5 sm:mt-6 bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base hover:shadow-lg transition-all"
+            >
+              Continue to Payment
+            </button>
           </div>
 
           {/* Payment Method */}
-          <div className="royal-border bg-white rounded-3xl p-8">
-            <h3 className="font-display text-2xl mb-6">Payment Method</h3>
-            <div className="space-y-3">
+          <div className="royal-border bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8">
+            <h3 className="font-display text-lg sm:text-2xl mb-4 sm:mb-6">
+              Payment Method
+            </h3>
+
+            <div className="space-y-2 sm:space-y-3">
               {[
-                { id: "cod", label: "Cash on Delivery", desc: "Pay when you receive the order" },
-                { id: "upi", label: "UPI Payment", desc: "Google Pay, PhonePe, Paytm, etc." },
-                { id: "razorpay", label: "Cards / Net Banking", desc: "Powered by Razorpay" },
+                {
+                  id: "cod",
+                  label: "Cash on Delivery",
+                  desc: "Pay when you receive the order",
+                },
+                {
+                  id: "upi",
+                  label: "UPI Payment",
+                  desc: "Google Pay, PhonePe, Paytm",
+                },
+                {
+                  id: "razorpay",
+                  label: "Cards / Net Banking",
+                  desc: "Powered by Razorpay",
+                },
               ].map((option) => (
                 <label
                   key={option.id}
-                  className={`flex items-start gap-4 p-5 rounded-2xl border cursor-pointer transition-all ${pay === option.id ? "border-rose-600 bg-rose-50" : "border-zinc-200 hover:border-zinc-300"}`}
+                  className={`flex items-start gap-3 sm:gap-4 p-3 sm:p-5 rounded-xl sm:rounded-2xl border cursor-pointer transition-all ${
+                    pay === option.id
+                      ? "border-rose-600 bg-rose-50"
+                      : "border-zinc-200"
+                  }`}
                 >
                   <input
                     type="radio"
@@ -96,9 +167,14 @@ function Checkout() {
                     onChange={(e) => setPay(e.target.value)}
                     className="mt-1 accent-rose-600"
                   />
+
                   <div>
-                    <div className="font-semibold">{option.label}</div>
-                    <div className="text-sm text-muted-foreground">{option.desc}</div>
+                    <div className="font-semibold text-sm sm:text-base">
+                      {option.label}
+                    </div>
+                    <div className="text-xs sm:text-sm text-muted-foreground">
+                      {option.desc}
+                    </div>
                   </div>
                 </label>
               ))}
@@ -106,37 +182,41 @@ function Checkout() {
           </div>
         </div>
 
-        {/* Order Summary Sidebar */}
-        <aside className="royal-border bg-white rounded-3xl p-8 h-fit lg:sticky lg:top-24">
-          <h3 className="font-display text-2xl mb-6">Your Order</h3>
+        {/* Order Summary */}
+        <aside className="royal-border bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 h-fit lg:sticky lg:top-24">
+          <h3 className="font-display text-lg sm:text-2xl mb-4 sm:mb-6">
+            Your Order
+          </h3>
 
-          <div className="space-y-4 text-sm">
+          <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
             {items.map((i) => (
-              <div key={i.product.id} className="flex justify-between">
-                <span className="line-clamp-1 pr-3">
+              <div key={i.product.id} className="flex justify-between gap-2">
+                <span className="line-clamp-1 pr-2">
                   {i.product.name} × {i.qty}
                 </span>
-                <span className="font-medium">₹{i.product.price * i.qty}</span>
+                <span className="font-medium shrink-0">
+                  ₹{i.product.price * i.qty}
+                </span>
               </div>
             ))}
           </div>
 
-          <div className="border-t border-zinc-200 my-6" />
+          <div className="border-t border-zinc-200 my-4 sm:my-6" />
 
-          <div className="flex justify-between items-baseline font-display text-3xl">
+          <div className="flex justify-between items-baseline font-display text-xl sm:text-3xl">
             <span>Total</span>
             <span className="text-gradient-gold">₹{total}</span>
           </div>
 
           <button
             type="submit"
-            className="mt-8 w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-4 rounded-2xl text-lg shadow-lg shadow-rose-500/30 hover:shadow-xl transition-all active:scale-[0.985]"
+            className="mt-5 sm:mt-8 w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-lg shadow-lg transition-all"
           >
             Place Order
           </button>
 
-          <p className="text-center text-xs text-zinc-500 mt-5">
-            Secure checkout • Cash on Delivery available
+          <p className="text-center text-[10px] sm:text-xs text-zinc-500 mt-3 sm:mt-5">
+            Secure checkout • COD available
           </p>
         </aside>
       </form>

@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as OrderConfirmedRouteImport } from './routes/order-confirmed'
 import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as CustomOrderRouteImport } from './routes/custom-order'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -22,6 +24,16 @@ import { Route as ProductIdRouteImport } from './routes/product.$id'
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderConfirmedRoute = OrderConfirmedRouteImport.update({
+  id: '/order-confirmed',
+  path: '/order-confirmed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GiftsRoute = GiftsRouteImport.update({
@@ -73,6 +85,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
   '/gifts': typeof GiftsRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
+  '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -84,6 +98,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
   '/gifts': typeof GiftsRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
+  '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -96,6 +112,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
   '/gifts': typeof GiftsRoute
+  '/order-confirmed': typeof OrderConfirmedRoute
+  '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
   '/product/$id': typeof ProductIdRoute
 }
@@ -109,6 +127,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom-order'
     | '/gifts'
+    | '/order-confirmed'
+    | '/payment'
     | '/shop'
     | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +140,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom-order'
     | '/gifts'
+    | '/order-confirmed'
+    | '/payment'
     | '/shop'
     | '/product/$id'
   id:
@@ -131,6 +153,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/custom-order'
     | '/gifts'
+    | '/order-confirmed'
+    | '/payment'
     | '/shop'
     | '/product/$id'
   fileRoutesById: FileRoutesById
@@ -143,6 +167,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   CustomOrderRoute: typeof CustomOrderRoute
   GiftsRoute: typeof GiftsRoute
+  OrderConfirmedRoute: typeof OrderConfirmedRoute
+  PaymentRoute: typeof PaymentRoute
   ShopRoute: typeof ShopRoute
   ProductIdRoute: typeof ProductIdRoute
 }
@@ -154,6 +180,20 @@ declare module '@tanstack/react-router' {
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-confirmed': {
+      id: '/order-confirmed'
+      path: '/order-confirmed'
+      fullPath: '/order-confirmed'
+      preLoaderRoute: typeof OrderConfirmedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gifts': {
@@ -223,6 +263,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   CustomOrderRoute: CustomOrderRoute,
   GiftsRoute: GiftsRoute,
+  OrderConfirmedRoute: OrderConfirmedRoute,
+  PaymentRoute: PaymentRoute,
   ShopRoute: ShopRoute,
   ProductIdRoute: ProductIdRoute,
 }

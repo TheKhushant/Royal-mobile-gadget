@@ -33,13 +33,17 @@ app.get('/', (req, res) => {
 // });
 
 // ... previous code
-
+const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const bannerRoutes = require('./routes/banners');   // 
 const reviewRoutes = require('./routes/reviews');
 
+// Protected Admin Routes (with auth middleware)
+const protect = require('./middleware/auth');
+
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/banners', bannerRoutes);

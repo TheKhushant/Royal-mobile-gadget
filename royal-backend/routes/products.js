@@ -5,21 +5,39 @@ const upload = require('../middleware/multer');
 const { uploadMultipleImages } = require('../controllers/uploadController');
 
 // Create Product with Images
-router.post('/', upload.array('images', 5), async (req, res) => {  // max 5 images
+// Create Product
+router.post('/', upload.array('images', 5), async (req, res) => {
   try {
     console.log("BODY =>", req.body);
     console.log("FILES =>", req.files);
 
-
-
     let imageData = [];
 
+    // Handle existing image URLs sent from frontend
+    if (req.body.existingImages) {
+      try {
+        const existing = JSON.parse(req.body.existingImages);
+        imageData = [...existing];
+      } catch (e) {
+        console.error("Error parsing existingImages", e);
+      }
+    }
+
+    // Handle newly uploaded files
     if (req.files && req.files.length > 0) {
-      imageData = await uploadMultipleImages(req.files);
+      const uploadedImages = await uploadMultipleImages(req.files);
+      imageData = [...imageData, ...uploadedImages];
     }
 
     const productData = {
-      ...req.body,
+      name: req.body.name,
+      price: req.body.price,
+      originalPrice: req.body.originalPrice || 0,
+      discount: req.body.discount || 0,
+      stock: req.body.stock,
+      description: req.body.description,
+      category: req.body.category,
+      flashSale: req.body.flashSale === 'true' || req.body.flashSale === true,
       images: imageData
     };
 
@@ -28,6 +46,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {  // max 5 imag
 
     res.status(201).json(savedProduct);
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: err.message });
   }
 });

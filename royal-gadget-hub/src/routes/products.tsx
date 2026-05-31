@@ -416,123 +416,84 @@ function ProductModal({ open, onClose, product, categories, onSaved }: {
   
   const [form, setForm] = useState<Product>(empty);
   const [saving, setSaving] = useState(false);
-  const [showImageInput, setShowImageInput] = useState(false);
-  const [newImageUrl, setNewImageUrl] = useState("");
-  // const [imageType, setImageType] = useState("url");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
-  // const [imageInputs, setImageInputs] = useState([""]);
-
-  // useEffect(() => {
-  //   if (!product) return;
-
-  //   setForm({
-  //     ...empty,
-  //     ...product,
-  //     images: product.images || [],
-  //   });
-
-  //   setSelectedFiles([]);
-  //   setNewImageUrl("");
-  //   setShowImageInput(false);
-  // }, [product]);
-
-
-  useEffect(() => {
-    if (!product) return;
-
-    setForm({
-      ...empty,
-      ...product,
-      images: product.images || [],
-    });
-  }, [product]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    setForm(
-      product
-        ? {
-            ...empty,
-            ...product,
-            images: product.images || [],
-          }
-        : empty
-    );
-
-    setSelectedFiles([]);
-    setNewImageUrl("");
-  }, [open, product]);
+  const [imageUrls, setImageUrls] = useState<string[]>([""]);
 
   const isEdit = !!(product && (product._id || product.id));
 
-  // const setImage = (i: number, val: string) => {
-  //   const imgs = [...(form.images || [])];
-  //   imgs[i] = val;
-  //   setForm({ ...form, images: imgs });
-  // };
+  // Single Clean useEffect for Reset
+  useEffect(() => {
+    if (!open) {
+      // Cleanup when modal closes
+      setForm(empty);
+      setSelectedFiles([]);
+      setImageUrls([""]);
+      return;
+    }
+
+    if (isEdit && product) {
+      // Edit Mode
+      setForm({
+        ...empty,
+        ...product,
+        images: product.images || [],
+      });
+    } else {
+      // Add New Product Mode
+      setForm(empty);
+    }
+
+    setSelectedFiles([]);
+    setImageUrls([""]);
+  }, [open, product, isEdit]);
 
   const submit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setSaving(true);
+    e.preventDefault();
+    setSaving(true);
 
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    // Basic fields
-    formData.append("name", form.name);
-    formData.append("price", String(form.price));
-    formData.append("stock", String(form.stock));
-    formData.append("originalPrice", String(form.originalPrice || 0));
-    formData.append("discount", String(form.discount || 0));
-    formData.append("flashSale", String(!!form.flashSale));
-    
-    if (form.description) {
-      formData.append("description", form.description);
+      formData.append("name", form.name);
+      formData.append("price", String(form.price));
+      formData.append("stock", String(form.stock));
+      formData.append("originalPrice", String(form.originalPrice || 0));
+      formData.append("discount", String(form.discount || 0));
+      formData.append("flashSale", String(!!form.flashSale));
+
+      if (form.description) formData.append("description", form.description);
+      if (form.category) formData.append("category", form.category);
+
+      // Combine: Existing Images + New URLs
+      const combinedImages = [
+        ...(form.images || []),
+        ...imageUrls
+          .filter(u => u.trim() !== "")
+          .map(url => ({ url: url.trim(), publicId: "" }))
+      ];
+
+      formData.append("existingImages", JSON.stringify(combinedImages));
+
+      // Local Files
+      selectedFiles.forEach(file => formData.append("images", file));
+
+      const config = { headers: { "Content-Type": "multipart/form-data" } };
+
+      if (isEdit) {
+        await api.put(`/products/${product!._id || product!.id}`, formData, config);
+      } else {
+        await api.post("/products", formData, config);
+      }
+
+      toast.success(isEdit ? "Product updated" : "Product created");
+      onSaved();
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Failed to save product");
+    } finally {
+      setSaving(false);
     }
-    if (form.category) {
-      formData.append("category", form.category);
-    }
-    
-
-    // === Images Handling ===
-    const existingImages = (form.images || [])
-      .filter(img => img && getImageUrl(img)) // valid images only
-      .map(img => ({
-        url: typeof img === 'string' ? img : img.url,
-        publicId: typeof img === 'object' ? (img.publicId || "") : ""
-      }));
-
-    // Send existing images as JSON
-    formData.append("existingImages", JSON.stringify(existingImages));
-
-    // Send new files
-    selectedFiles.forEach((file) => {
-      formData.append("images", file);   // backend me "images" key pe multiple files
-    });
-
-    const config = {
-      headers: { "Content-Type": "multipart/form-data" }
-    };
-
-    if (isEdit) {
-      await api.put(`/products/${product!._id || product!.id}`, formData, config);
-    } else {
-      await api.post("/products", formData, config);
-    }
-
-    toast.success(isEdit ? "Product updated" : "Product created");
-    onSaved();
-
-  } catch (err: any) {
-    console.error(err);
-    toast.error(err?.response?.data?.message || "Save failed");
-  } finally {
-    setSaving(false);
-  }
-  
-};
+  };
 
   return (
     
@@ -639,133 +600,147 @@ function ProductModal({ open, onClose, product, categories, onSaved }: {
       
 
       <Field label="Images">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="space-y-4">
 
-          {/* Existing Images */}
-          {(form.images || []).map((img, index) => (
-            <div
-              key={index}
-              className="relative aspect-square rounded-lg overflow-hidden border"
-            >
-              <img
-                src={getImageUrl(img)}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+          {/* Preview Section - All Previews Together */}
+          <div className="grid grid-cols-3 gap-3 min-h-[120px]">
 
-              <button
-                type="button"
-                onClick={() =>
-                  setForm({
-                    ...form,
-                    images: (form.images || []).filter((_, i) => i !== index),
-                  })
-                }
-                className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
+            {/* 1. Saved Images (Edit mode) */}
+            {(form.images || []).map((img, index) => (
+              <div key={`saved-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                <img 
+                  src={getImageUrl(img)} 
+                  alt="Saved" 
+                  className="w-full h-full object-cover" 
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm(prev => ({
+                      ...prev,
+                      images: (prev.images || []).filter((_, i) => i !== index)
+                    }));
+                  }}
+                  className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
+                  Saved
+                </div>
+              </div>
+            ))}
 
-          <div className="col-span-2 flex gap-2">
-            <input
-              className={inp}
-              placeholder="Paste image URL..."
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-            />
+            {/* 2. Local Files Preview */}
+            {selectedFiles.map((file, index) => (
+              <div key={`local-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                <img src={URL.createObjectURL(file)} alt="Local" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                  className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
+                  Local
+                </div>
+              </div>
+            ))}
 
-            <button
-              type="button"
-              onClick={() => {
-                if (!newImageUrl.trim()) return;
-                console.log("Added image");
+            {/* 3. NEW: URL Previews */}
+            {imageUrls.map((url, index) => {
+              const trimmedUrl = url.trim();
+              if (!trimmedUrl) return null;
 
-                setForm((prev) => ({
-                  
-                  ...prev,
-                  images: [
-                    ...(prev.images || []),
-                    {
-                      url: newImageUrl.trim(),
-                      publicId: "",
-                    },
-                  ],
-                }));
+              return (
+                <div key={`url-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                  <img 
+                    src={trimmedUrl} 
+                    alt="URL Preview" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = ""; // fallback if image fails to load
+                      e.currentTarget.alt = "Invalid URL";
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImageUrls(prev => prev.filter((_, i) => i !== index));
+                    }}
+                    className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                  <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
+                    URL
+                  </div>
+                </div>
+              );
+            })}
 
-                setNewImageUrl("");
-              }}
-              className="px-3 border rounded-lg"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
           </div>
-        </div>
 
-        {/* File Upload Input */}
-        <div className="mt-3">
-          <label className="text-xs font-medium text-muted-foreground block mb-1">
-            Upload New Images
-          </label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={(e) => {
-              if (e.target.files) {
-                setSelectedFiles(Array.from(e.target.files));
-              }
-            }}
-            className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
-          />
-          {selectedFiles.length > 0 && (
-            <p className="text-xs text-green-600 mt-1">
-              {selectedFiles.length} file(s) selected
-            </p>
-          )}
-        </div>
+          {/* Upload Files */}
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              Upload Images from Device
+            </label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                }
+              }}
+              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
+            />
+          </div>
 
-        {/* Popup Input */}
-        {/* {showImageInput && (
-          <div className="mt-3 space-y-2">
-            {imageInputs.map((url, index) => (
-              <input
-                key={index}
-                className={inp}
-                placeholder="Paste image URL"
-                value={url}
-                onChange={(e) => {
-                  const value = e.target.value;
-
-                  const updatedInputs = [...imageInputs];
-                  updatedInputs[index] = value;
-
-                  // Automatically add new input when last field gets value
-                  if (
-                    index === imageInputs.length - 1 &&
-                    value.trim()
-                  ) {
-                    updatedInputs.push("");
-                  }
-
-                  setImageInputs(updatedInputs);
-
-                  // Update form.images
-                  setForm({
-                    ...form,
-                    images: updatedInputs
-                      .filter((u) => u.trim())
-                      .map((u) => ({
-                        url: u.trim(),
-                        publicId: "",
-                      })),
-                  });
-                }}
-              />
+          {/* Add URLs */}
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              Add Image URLs
+            </label>
+            {imageUrls.map((url, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input
+                  type="url"
+                  className={inp}
+                  placeholder="https://example.com/image.jpg"
+                  value={url}
+                  onChange={(e) => {
+                    const updated = [...imageUrls];
+                    updated[index] = e.target.value;
+                    setImageUrls(updated);
+                  }}
+                />
+                {index === imageUrls.length - 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setImageUrls([...imageUrls, ""])}
+                    className="px-3 border border-border rounded-lg hover:bg-muted"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                )}
+                {imageUrls.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== index))}
+                    className="px-3 border border-border text-red-500 hover:bg-red-50 rounded-lg"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             ))}
           </div>
-        )} */}
+
+        </div>
       </Field>
 
       

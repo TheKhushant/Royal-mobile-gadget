@@ -1,0 +1,814 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Modal, ConfirmDialog } from "@/components/admin/Modal";
+import { useRequireAuth } from "@/components/admin/useRequireAuth";
+import { api } from "@/lib/api";
+import toast from "react-hot-toast";
+import { Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
+
+
+
+export const Route = createFileRoute("/products")({
+  head: () => ({ meta: [{ title: "Products — Admin" }] }),
+  component: ProductsPage,
+});
+
+interface ProductImage {
+  url: string;
+  publicId: string;
+  _id?: string;
+}
+
+interface Product {
+  _id?: string;
+  id?: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  stock: number;
+  category?: any;
+  flashSale?: boolean;
+  isFlashSale?: boolean;
+  images?: Array<ProductImage | string>;
+  description?: string;
+}
+
+const empty: Product = { name: "", price: 0, originalPrice: 0, discount: 0, stock: 0, flashSale: false, images: [], description: "" };
+
+const getImageUrl = (img?: ProductImage | string | null) => {
+  if (!img) return "";
+  return typeof img === "string" ? img : img.url || "";
+};
+
+function ProductsPage() {
+  const { ready } = useRequireAuth();
+  const [items, setItems] = useState<Product[]>([]);
+  const [cats, setCats] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [catFilter, setCatFilter] = useState("");
+  const [flashFilter, setFlashFilter] = useState("");
+  const [stockFilter, setStockFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const perPage = 10;
+
+ 
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const [p, c] = await Promise.all([api.get("/products"), api.get("/categories")]);
+      setItems(Array.isArray(p.data) ? p.data : p.data?.products || p.data?.data || []);
+      setCats(Array.isArray(c.data) ? c.data : c.data?.categories || c.data?.data || []);
+    } catch (e: any) {
+      toast.error("Failed to load products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (ready) load();
+  }, [ready]);
+
+  const filtered = useMemo(() => {
+    return items.filter((p) => {
+      if (search && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
+      if (catFilter) {
+        const cid = typeof p.category === "object" ? p.category?._id || p.category?.id : p.category;
+        if (cid !== catFilter) return false;
+      }
+      if (flashFilter === "yes" && !p.flashSale) return false;
+      if (flashFilter === "no" && p.flashSale) return false;
+      if (stockFilter === "out" && (p.stock ?? 0) > 0) return false;
+      if (stockFilter === "low" && ((p.stock ?? 0) === 0 || (p.stock ?? 0) >= 5)) return false;
+      if (stockFilter === "in" && (p.stock ?? 0) < 5) return false;
+      return true;
+    });
+  }, [items, search, catFilter, flashFilter, stockFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.delete(`/products/${id}`);
+      toast.success("Product deleted");
+      load();
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
+
+  if (!ready) return null;
+
+  return (
+    <AdminLayout>
+      <div className="bg-card border border-border rounded-xl p-3 mb-4">
+
+    {/* Top Toolbar */}
+    <div className="flex items-center justify-between">
+
+      <div className="min-w-0">
+        <h1 className="text-lg font-bold leading-none">
+          Products
+        </h1>
+        <p className="text-[11px] text-muted-foreground">
+          {filtered.length} items
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2">
+
+        {/* Search */}
+        <button
+          onClick={() => setShowSearch(!showSearch)}
+          className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+
+        {/* Filters */}
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+        >
+          <Filter className="w-4 h-4" />
+        </button>
+
+        {/* Add Product */}
+        <button
+          onClick={() => {
+            setEditing(empty);
+            setModalOpen(true);
+          }}
+          className="w-9 h-9 rounded-lg bg-gradient-to-r from-primary to-accent text-white flex items-center justify-center"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+
+      </div>
+    </div>
+
+    {/* Search Box */}
+    {showSearch && (
+      <div className="mt-3">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Search products..."
+            className="w-full pl-9 pr-3 py-2 text-sm bg-input border border-border rounded-lg"
+          />
+        </div>
+      </div>
+    )}
+
+    {/* Filters */}
+    {showFilters && (
+      <div className="mt-3 grid grid-cols-3 gap-2">
+
+        <select
+          value={catFilter}
+          onChange={(e) => setCatFilter(e.target.value)}
+          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+        >
+          <option value="">Category</option>
+          {cats.map((c) => (
+            <option
+              key={c._id || c.id}
+              value={c._id || c.id}
+            >
+              {c.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={flashFilter}
+          onChange={(e) => setFlashFilter(e.target.value)}
+          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+        >
+          <option value="">Flash</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+
+        <select
+          value={stockFilter}
+          onChange={(e) => setStockFilter(e.target.value)}
+          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+        >
+          <option value="">Stock</option>
+          <option value="in">In</option>
+          <option value="low">Low</option>
+          <option value="out">Out</option>
+        </select>
+
+      </div>
+    )}
+  </div>
+
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto scrollbar-thin">
+          
+          {/* Desktop Table */}
+          <div className="hidden md:block bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              {/* <table className="w-full text-sm"> */}
+                <table className="w-full min-w-[850px] text-sm">
+                  <thead className="bg-muted/50 text-left text-muted-foreground">
+                    <tr>
+                      <th className="p-3">Image</th>
+                      <th className="p-3">Name</th>
+                      <th className="p-3">Price</th>
+                      <th className="p-3">Original</th>
+                      <th className="p-3">Discount</th>
+                      <th className="p-3">Stock</th>
+                      <th className="p-3">Flash</th>
+                      <th className="p-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loading && (
+                      <tr><td colSpan={8} className="p-8 text-center"><Loader2 className="w-5 h-5 animate-spin inline" /></td></tr>
+                    )}
+                    {!loading && pageItems.length === 0 && (
+                      <tr><td colSpan={8} className="p-8 text-center text-muted-foreground">No products found</td></tr>
+                    )}
+                    {pageItems.map((p) => {
+                      const id = (p._id || p.id)!;
+                      const img = getImageUrl(p.images?.[0] ?? null);
+                          
+                      return (
+                        <tr key={id} className="border-t border-border">
+                          <td className="p-3">
+                            {img ? (
+                              <img src={img} alt={p.name} className="w-12 h-12 rounded object-cover" />
+                            ) : (
+                              <div className="w-12 h-12 rounded bg-muted flex items-center justify-center"><ImageOff className="w-4 h-4 text-muted-foreground" /></div>
+                            )}
+                          </td>
+                          <td className="p-3 font-medium">{p.name}</td>
+                          <td className="p-3">${p.price}</td>
+                          <td className="p-3 text-muted-foreground line-through">{p.originalPrice ? `$${p.originalPrice}` : "—"}</td>
+                          <td className="p-3">{p.discount ? `${p.discount}%` : "—"}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-xs ${(p.stock ?? 0) === 0 ? "bg-destructive/15 text-destructive" : (p.stock ?? 0) < 5 ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500"}`}>
+                              {p.stock ?? 0}
+                            </span>
+                          </td>
+                          <td className="p-3">{p.flashSale ? "⚡" : "—"}</td>
+                          <td className="p-3">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => { setEditing(p); setModalOpen(true); }} className="p-1.5 rounded hover:bg-muted text-primary"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => setConfirmId(id)} className="p-1.5 rounded hover:bg-muted text-destructive"><Trash2 className="w-4 h-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              {/* </table> */}
+            </div>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {loading && (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin" />
+              </div>
+            )}
+
+            {!loading &&
+              pageItems.map((p) => {
+                const id = (p._id || p.id)!;
+                const img = getImageUrl(p.images?.[0] ?? null);
+
+                return (
+                  <div
+                    key={id}
+                    className="bg-card border border-border rounded-lg p-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={p.name}
+                          className="w-12 h-12 rounded object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center shrink-0">
+                          <ImageOff className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="text-xs font-medium truncate">
+                            {p.name}
+                          </h3>
+
+                          <div className="flex gap-1 shrink-0">
+                            <button
+                              onClick={() => {
+                                setEditing(p);
+                                setModalOpen(true);
+                              }}
+                              className="p-1 rounded bg-primary/10 text-primary"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              onClick={() => setConfirmId(id)}
+                              className="p-1 rounded bg-red-100 text-red-600"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-1 text-xs">
+                          <span className="font-semibold text-primary">
+                            ₹{p.price}
+                          </span>
+
+                          {p.originalPrice && (
+                            <span className="line-through text-muted-foreground">
+                              ₹{p.originalPrice}
+                            </span>
+                          )}
+
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] ${
+                              (p.stock ?? 0) === 0
+                                ? "bg-red-100 text-red-600"
+                                : (p.stock ?? 0) < 5
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-green-100 text-green-600"
+                            }`}
+                          >
+                            {p.stock}
+                          </span>
+
+                          {p.flashSale && (
+                            <span className="text-[10px] text-orange-600">
+                              ⚡
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between p-3 border-t border-border text-sm">
+            <span className="text-muted-foreground">Page {page} of {totalPages}</span>
+            <div className="flex gap-2">
+              <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-1 rounded border border-border disabled:opacity-50">Prev</button>
+              <button disabled={page === totalPages} onClick={() => setPage(page + 1)} className="px-3 py-1 rounded border border-border disabled:opacity-50">Next</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <ProductModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        product={editing}
+        categories={cats}
+        onSaved={() => { setModalOpen(false); load(); }}
+      />
+      <ConfirmDialog
+        open={!!confirmId}
+        onClose={() => setConfirmId(null)}
+        onConfirm={() => confirmId && handleDelete(confirmId)}
+        title="Delete product?"
+        description="This will permanently remove the product."
+      />
+    </AdminLayout>
+  );
+}
+
+function ProductModal({ open, onClose, product, categories, onSaved }: {
+  open: boolean; onClose: () => void; product: Product | null; categories: any[]; onSaved: () => void;
+}) {
+  
+  const [form, setForm] = useState<Product>(empty);
+  const [saving, setSaving] = useState(false);
+  const [showImageInput, setShowImageInput] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState("");
+  // const [imageType, setImageType] = useState("url");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  // const [imageInputs, setImageInputs] = useState([""]);
+
+  // useEffect(() => {
+  //   if (!product) return;
+
+  //   setForm({
+  //     ...empty,
+  //     ...product,
+  //     images: product.images || [],
+  //   });
+
+  //   setSelectedFiles([]);
+  //   setNewImageUrl("");
+  //   setShowImageInput(false);
+  // }, [product]);
+
+
+  useEffect(() => {
+    if (!product) return;
+
+    setForm({
+      ...empty,
+      ...product,
+      images: product.images || [],
+    });
+  }, [product]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setForm(
+      product
+        ? {
+            ...empty,
+            ...product,
+            images: product.images || [],
+          }
+        : empty
+    );
+
+    setSelectedFiles([]);
+    setNewImageUrl("");
+  }, [open, product]);
+
+  const isEdit = !!(product && (product._id || product.id));
+
+  // const setImage = (i: number, val: string) => {
+  //   const imgs = [...(form.images || [])];
+  //   imgs[i] = val;
+  //   setForm({ ...form, images: imgs });
+  // };
+
+  const submit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSaving(true);
+
+  try {
+    const formData = new FormData();
+
+    // Basic fields
+    formData.append("name", form.name);
+    formData.append("price", String(form.price));
+    formData.append("stock", String(form.stock));
+    formData.append("originalPrice", String(form.originalPrice || 0));
+    formData.append("discount", String(form.discount || 0));
+    formData.append("flashSale", String(!!form.flashSale));
+    
+    if (form.description) {
+      formData.append("description", form.description);
+    }
+    if (form.category) {
+      formData.append("category", form.category);
+    }
+    
+
+    // === Images Handling ===
+    const existingImages = (form.images || [])
+      .filter(img => img && getImageUrl(img)) // valid images only
+      .map(img => ({
+        url: typeof img === 'string' ? img : img.url,
+        publicId: typeof img === 'object' ? (img.publicId || "") : ""
+      }));
+
+    // Send existing images as JSON
+    formData.append("existingImages", JSON.stringify(existingImages));
+
+    // Send new files
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);   // backend me "images" key pe multiple files
+    });
+
+    const config = {
+      headers: { "Content-Type": "multipart/form-data" }
+    };
+
+    if (isEdit) {
+      await api.put(`/products/${product!._id || product!.id}`, formData, config);
+    } else {
+      await api.post("/products", formData, config);
+    }
+
+    toast.success(isEdit ? "Product updated" : "Product created");
+    onSaved();
+
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err?.response?.data?.message || "Save failed");
+  } finally {
+    setSaving(false);
+  }
+  
+};
+
+  return (
+    
+    <Modal open={open} onClose={onClose} title={isEdit ? "Edit Product" : "Add Product"} size="lg">
+      <form onSubmit={submit} className="space-y-3">
+
+      {/* Name + Category */}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Name *">
+          <input
+            className={inp}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+        </Field>
+
+        <Field label="Category">
+          <select
+            className={inp}
+            value={
+              (typeof form.category === "object"
+                ? form.category?._id
+                : form.category) || ""
+            }
+            onChange={(e) =>
+              setForm({ ...form, category: e.target.value })
+            }
+          >
+            <option value="">Select</option>
+            {categories.map((c) => (
+              <option key={c._id || c.id} value={c._id || c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
+
+      {/* Price + Original Price */}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Price *">
+          <input
+            type="number"
+            step="0.01"
+            className={inp}
+            value={form.price}
+            onChange={(e) =>
+              setForm({ ...form, price: +e.target.value })
+            }
+            required
+          />
+        </Field>
+
+        <Field label="Original Price">
+          <input
+            type="number"
+            step="0.01"
+            className={inp}
+            value={form.originalPrice || 0}
+            onChange={(e) =>
+              setForm({ ...form, originalPrice: +e.target.value })
+            }
+          />
+        </Field>
+      </div>
+
+      {/* Discount + Stock */}
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Discount %">
+          <input
+            type="number"
+            className={inp}
+            value={form.discount || 0}
+            onChange={(e) =>
+              setForm({ ...form, discount: +e.target.value })
+            }
+          />
+        </Field>
+
+        <Field label="Stock">
+          <input
+            type="number"
+            className={inp}
+            value={form.stock}
+            onChange={(e) =>
+              setForm({ ...form, stock: +e.target.value })
+            }
+          />
+        </Field>
+      </div>
+
+      {/* Description */}
+      <Field label="Description">
+        <textarea
+          className={`${inp} min-h-[70px]`}
+          value={form.description || ""}
+          onChange={(e) =>
+            setForm({ ...form, description: e.target.value })
+          }
+        />
+      </Field>
+
+      
+
+      <Field label="Images">
+        <div className="grid grid-cols-3 gap-2">
+
+          {/* Existing Images */}
+          {(form.images || []).map((img, index) => (
+            <div
+              key={index}
+              className="relative aspect-square rounded-lg overflow-hidden border"
+            >
+              <img
+                src={getImageUrl(img)}
+                alt={`Preview ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setForm({
+                    ...form,
+                    images: (form.images || []).filter((_, i) => i !== index),
+                  })
+                }
+                className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+
+          <div className="col-span-2 flex gap-2">
+            <input
+              className={inp}
+              placeholder="Paste image URL..."
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+            />
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!newImageUrl.trim()) return;
+                console.log("Added image");
+
+                setForm((prev) => ({
+                  
+                  ...prev,
+                  images: [
+                    ...(prev.images || []),
+                    {
+                      url: newImageUrl.trim(),
+                      publicId: "",
+                    },
+                  ],
+                }));
+
+                setNewImageUrl("");
+              }}
+              className="px-3 border rounded-lg"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* File Upload Input */}
+        <div className="mt-3">
+          <label className="text-xs font-medium text-muted-foreground block mb-1">
+            Upload New Images
+          </label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files) {
+                setSelectedFiles(Array.from(e.target.files));
+              }
+            }}
+            className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
+          />
+          {selectedFiles.length > 0 && (
+            <p className="text-xs text-green-600 mt-1">
+              {selectedFiles.length} file(s) selected
+            </p>
+          )}
+        </div>
+
+        {/* Popup Input */}
+        {/* {showImageInput && (
+          <div className="mt-3 space-y-2">
+            {imageInputs.map((url, index) => (
+              <input
+                key={index}
+                className={inp}
+                placeholder="Paste image URL"
+                value={url}
+                onChange={(e) => {
+                  const value = e.target.value;
+
+                  const updatedInputs = [...imageInputs];
+                  updatedInputs[index] = value;
+
+                  // Automatically add new input when last field gets value
+                  if (
+                    index === imageInputs.length - 1 &&
+                    value.trim()
+                  ) {
+                    updatedInputs.push("");
+                  }
+
+                  setImageInputs(updatedInputs);
+
+                  // Update form.images
+                  setForm({
+                    ...form,
+                    images: updatedInputs
+                      .filter((u) => u.trim())
+                      .map((u) => ({
+                        url: u.trim(),
+                        publicId: "",
+                      })),
+                  });
+                }}
+              />
+            ))}
+          </div>
+        )} */}
+      </Field>
+
+      
+      {/* Flash Sale */}
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={!!form.flashSale}
+          onChange={(e) =>
+            setForm({ ...form, flashSale: e.target.checked })
+          }
+          className="accent-primary"
+        />
+        Flash Sale
+      </label>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-2 pt-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 rounded-lg border border-border text-sm"
+        >
+          Cancel
+        </button>
+
+        <button
+          disabled={saving}
+          className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2"
+        >
+          {saving && (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          )}
+          Save
+        </button>
+      </div>
+
+    </form>
+    </Modal>
+  );
+}
+
+const inp = "w-full px-3 py-2 bg-input border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return <div><label className="text-xs font-medium text-muted-foreground block mb-1">{label}</label>{children}</div>;
+}

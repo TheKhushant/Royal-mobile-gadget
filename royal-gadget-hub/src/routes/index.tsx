@@ -102,7 +102,7 @@ function DashboardPage() {
                   <th className="py-2 pr-3">Stock</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody> 
                 {stats.recent.length === 0 && (
                   <tr><td colSpan={3} className="py-8 text-center text-muted-foreground">No products yet</td></tr>
                 )}

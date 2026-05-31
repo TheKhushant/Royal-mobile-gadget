@@ -5,13 +5,19 @@ import { Modal, ConfirmDialog } from "@/components/admin/Modal";
 import { useRequireAuth } from "@/components/admin/useRequireAuth";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
-import { Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
+import { SquarePlus , Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
 
 
 export const Route = createFileRoute("/products")({
   head: () => ({ meta: [{ title: "Products — Admin" }] }),
   component: ProductsPage,
 });
+
+interface Category {
+  _id?: string;
+  id?: string;
+  name: string;
+}
 
 interface ProductImage {
   url: string;
@@ -396,7 +402,11 @@ function ProductsPage() {
         onClose={() => setModalOpen(false)}
         product={editing}
         categories={cats}
-        onSaved={() => { setModalOpen(false); load(); }}
+        onSaved={() => {
+          setModalOpen(false);
+          load();
+        }}
+        onSavedCategories={load}
       />
       <ConfirmDialog
         open={!!confirmId}
@@ -409,16 +419,72 @@ function ProductsPage() {
   );
 }
 
-function ProductModal({ open, onClose, product, categories, onSaved }: {
-  open: boolean; onClose: () => void; product: Product | null; categories: any[]; onSaved: () => void;
+function ProductModal({
+  open,
+  onClose,
+  product,
+  categories,
+  onSaved,
+  onSavedCategories
+}: {
+  open: boolean;
+  onClose: () => void;
+  product: Product | null;
+  categories: any[];
+  onSaved: () => void;
+  onSavedCategories: () => Promise<void>;
 }) {
   
   const [form, setForm] = useState<Product>(empty);
   const [saving, setSaving] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>([""]);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
 
   const isEdit = !!(product && (product._id || product.id));
+  const createCategory = async () => {
+    if (!newCategory.trim()) {
+      toast.error("Enter category name");
+      return;
+    }
+
+    try {
+      const name = newCategory.trim();
+
+      const res = await api.post("/categories", {
+        name,
+        slug: name
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-"),
+      });
+
+      const created =
+        res.data?.category ||
+        res.data?.data ||
+        res.data;
+
+      toast.success("Category created");
+
+      // parent ko reload karwao
+      await onSavedCategories?.();
+
+      setForm((prev) => ({
+        ...prev,
+        category: created._id || created.id,
+      }));
+
+      setNewCategory("");
+      setCategoryModalOpen(false);
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message ||
+        "Failed to create category"
+      );
+    }
+  };
 
   // Single Clean useEffect for Reset
   useEffect(() => {
@@ -495,290 +561,339 @@ function ProductModal({ open, onClose, product, categories, onSaved }: {
   };
 
   return (
+    <>
     
     <Modal open={open} onClose={onClose} title={isEdit ? "Edit Product" : "Add Product"} size="lg">
       <form onSubmit={submit} className="space-y-3">
 
       {/* Name + Category */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Name *">
-          <input
-            className={inp}
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            required
-          />
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Name *">
+            <input
+              className={inp}
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </Field>
 
-        <Field label="Category">
-          <select
-            className={inp}
-            value={
-              (typeof form.category === "object"
-                ? form.category?._id
-                : form.category) || ""
-            }
-            onChange={(e) =>
-              setForm({ ...form, category: e.target.value })
-            }
-          >
-            <option value="">Select</option>
-            {categories.map((c) => (
-              <option key={c._id || c.id} value={c._id || c.id}>
-                {c.name}
+          <Field label="Category">
+            <select
+              className={inp}
+              value={
+                (typeof form.category === "object"
+                  ? form.category?._id
+                  : form.category) || ""
+              }
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setCategoryModalOpen(true);
+                  return;
+                }
+
+                setForm({
+                  ...form,
+                  category: e.target.value,
+                });
+              }}
+            >
+              <option value="">Select</option>
+              {categories.map((c) => (
+                <option key={c._id || c.id} value={c._id || c.id}>
+                  {c.name}
+                </option>
+              ))}
+              <option value="__new__">
+                + Add New Category
               </option>
-            ))}
-          </select>
-        </Field>
-      </div>
+            </select>
+          </Field>
+        </div>
 
-      {/* Price + Original Price */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Price *">
-          <input
-            type="number"
-            step="0.01"
-            className={inp}
-            value={form.price}
+        {/* Price + Original Price */}
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Price *">
+            <input
+              type="number"
+              step="0.01"
+              className={inp}
+              value={form.price}
+              onChange={(e) =>
+                setForm({ ...form, price: +e.target.value })
+              }
+              required
+            />
+          </Field>
+
+          <Field label="Original Price">
+            <input
+              type="number"
+              step="0.01"
+              className={inp}
+              value={form.originalPrice || 0}
+              onChange={(e) =>
+                setForm({ ...form, originalPrice: +e.target.value })
+              }
+            />
+          </Field>
+        </div>
+
+        {/* Discount + Stock */}
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Discount %">
+            <input
+              type="number"
+              className={inp}
+              value={form.discount || 0}
+              onChange={(e) =>
+                setForm({ ...form, discount: +e.target.value })
+              }
+            />
+          </Field>
+
+          <Field label="Stock">
+            <input
+              type="number"
+              className={inp}
+              value={form.stock}
+              onChange={(e) =>
+                setForm({ ...form, stock: +e.target.value })
+              }
+            />
+          </Field>
+        </div>
+
+        {/* Description */}
+        <Field label="Description">
+          <textarea
+            className={`${inp} min-h-[70px]`}
+            value={form.description || ""}
             onChange={(e) =>
-              setForm({ ...form, price: +e.target.value })
+              setForm({ ...form, description: e.target.value })
             }
-            required
           />
         </Field>
 
-        <Field label="Original Price">
-          <input
-            type="number"
-            step="0.01"
-            className={inp}
-            value={form.originalPrice || 0}
-            onChange={(e) =>
-              setForm({ ...form, originalPrice: +e.target.value })
-            }
-          />
-        </Field>
-      </div>
+        
 
-      {/* Discount + Stock */}
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Discount %">
-          <input
-            type="number"
-            className={inp}
-            value={form.discount || 0}
-            onChange={(e) =>
-              setForm({ ...form, discount: +e.target.value })
-            }
-          />
-        </Field>
+        <Field label="Images">
+          <div className="space-y-4">
 
-        <Field label="Stock">
-          <input
-            type="number"
-            className={inp}
-            value={form.stock}
-            onChange={(e) =>
-              setForm({ ...form, stock: +e.target.value })
-            }
-          />
-        </Field>
-      </div>
+            {/* Preview Section - All Previews Together */}
+            <div className="grid grid-cols-3 gap-3 min-h-[120px]">
 
-      {/* Description */}
-      <Field label="Description">
-        <textarea
-          className={`${inp} min-h-[70px]`}
-          value={form.description || ""}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-        />
-      </Field>
-
-      
-
-      <Field label="Images">
-        <div className="space-y-4">
-
-          {/* Preview Section - All Previews Together */}
-          <div className="grid grid-cols-3 gap-3 min-h-[120px]">
-
-            {/* 1. Saved Images (Edit mode) */}
-            {(form.images || []).map((img, index) => (
-              <div key={`saved-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
-                <img 
-                  src={getImageUrl(img)} 
-                  alt="Saved" 
-                  className="w-full h-full object-cover" 
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(prev => ({
-                      ...prev,
-                      images: (prev.images || []).filter((_, i) => i !== index)
-                    }));
-                  }}
-                  className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
-                  Saved
-                </div>
-              </div>
-            ))}
-
-            {/* 2. Local Files Preview */}
-            {selectedFiles.map((file, index) => (
-              <div key={`local-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
-                <img src={URL.createObjectURL(file)} alt="Local" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
-                  className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-                <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
-                  Local
-                </div>
-              </div>
-            ))}
-
-            {/* 3. NEW: URL Previews */}
-            {imageUrls.map((url, index) => {
-              const trimmedUrl = url.trim();
-              if (!trimmedUrl) return null;
-
-              return (
-                <div key={`url-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+              {/* 1. Saved Images (Edit mode) */}
+              {(form.images || []).map((img, index) => (
+                <div key={`saved-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
                   <img 
-                    src={trimmedUrl} 
-                    alt="URL Preview" 
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = ""; // fallback if image fails to load
-                      e.currentTarget.alt = "Invalid URL";
-                    }}
+                    src={getImageUrl(img)} 
+                    alt="Saved" 
+                    className="w-full h-full object-cover" 
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      setImageUrls(prev => prev.filter((_, i) => i !== index));
+                      setForm(prev => ({
+                        ...prev,
+                        images: (prev.images || []).filter((_, i) => i !== index)
+                      }));
                     }}
                     className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
                   >
                     <X className="w-3 h-3" />
                   </button>
                   <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
-                    URL
+                    Saved
                   </div>
                 </div>
-              );
-            })}
+              ))}
 
-          </div>
-
-          {/* Upload Files */}
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              Upload Images from Device
-            </label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files) {
-                  setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-                }
-              }}
-              className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
-            />
-          </div>
-
-          {/* Add URLs */}
-          <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">
-              Add Image URLs
-            </label>
-            {imageUrls.map((url, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <input
-                  type="url"
-                  className={inp}
-                  placeholder="https://example.com/image.jpg"
-                  value={url}
-                  onChange={(e) => {
-                    const updated = [...imageUrls];
-                    updated[index] = e.target.value;
-                    setImageUrls(updated);
-                  }}
-                />
-                {index === imageUrls.length - 1 && (
+              {/* 2. Local Files Preview */}
+              {selectedFiles.map((file, index) => (
+                <div key={`local-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                  <img src={URL.createObjectURL(file)} alt="Local" className="w-full h-full object-cover" />
                   <button
                     type="button"
-                    onClick={() => setImageUrls([...imageUrls, ""])}
-                    className="px-3 border border-border rounded-lg hover:bg-muted"
+                    onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== index))}
+                    className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
                   >
-                    <Plus className="w-4 h-4" />
+                    <X className="w-3 h-3" />
                   </button>
-                )}
-                {imageUrls.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== index))}
-                    className="px-3 border border-border text-red-500 hover:bg-red-50 rounded-lg"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
+                  <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
+                    Local
+                  </div>
+                </div>
+              ))}
+
+              {/* 3. NEW: URL Previews */}
+              {imageUrls.map((url, index) => {
+                const trimmedUrl = url.trim();
+                if (!trimmedUrl) return null;
+
+                return (
+                  <div key={`url-${index}`} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                    <img 
+                      src={trimmedUrl} 
+                      alt="URL Preview" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = ""; // fallback if image fails to load
+                        e.currentTarget.alt = "Invalid URL";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageUrls(prev => prev.filter((_, i) => i !== index));
+                      }}
+                      className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                    <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[10px] text-center text-white py-0.5">
+                      URL
+                    </div>
+                  </div>
+                );
+              })}
+
+            </div>
+
+            {/* Upload Files */}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Upload Images from Device
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                  }
+                }}
+                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
+              />
+            </div>
+
+            {/* Add URLs */}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Add Image URLs
+              </label>
+              {imageUrls.map((url, index) => (
+                <div key={index} className="flex gap-2 mb-2">
+                  <input
+                    type="url"
+                    className={inp}
+                    placeholder="https://example.com/image.jpg"
+                    value={url}
+                    onChange={(e) => {
+                      const updated = [...imageUrls];
+                      updated[index] = e.target.value;
+                      setImageUrls(updated);
+                    }}
+                  />
+                  {index === imageUrls.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrls([...imageUrls, ""])}
+                      className="px-3 border border-border rounded-lg hover:bg-muted"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  )}
+                  {imageUrls.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== index))}
+                      className="px-3 border border-border text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
           </div>
+        </Field>
+
+        
+        {/* Flash Sale */}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={!!form.flashSale}
+            onChange={(e) =>
+              setForm({ ...form, flashSale: e.target.checked })
+            }
+            className="accent-primary"
+          />
+          Flash Sale
+        </label>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border border-border text-sm"
+          >
+            Cancel
+          </button>
+
+          <button
+            disabled={saving}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2"
+          >
+            {saving && (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            )}
+            Save
+          </button>
+        </div>
+      </form>
+    </Modal>
+    <Modal
+      open={categoryModalOpen}
+      onClose={() => setCategoryModalOpen(false)}
+      title="Add Category"
+    >
+      <div className="space-y-4">
+
+        <input
+          className={inp}
+          placeholder="Category name"
+          value={newCategory}
+          onChange={(e) =>
+            setNewCategory(e.target.value)
+          }
+        />
+
+        <div className="flex justify-end gap-2">
+
+          <button
+            type="button"
+            onClick={() => setCategoryModalOpen(false)}
+            className="px-4 py-2 border border-border rounded-lg"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            onClick={createCategory}
+            className="px-4 py-2 bg-primary text-white rounded-lg"
+          >
+            Add Category
+          </button>
 
         </div>
-      </Field>
-
-      
-      {/* Flash Sale */}
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={!!form.flashSale}
-          onChange={(e) =>
-            setForm({ ...form, flashSale: e.target.checked })
-          }
-          className="accent-primary"
-        />
-        Flash Sale
-      </label>
-
-      {/* Buttons */}
-      <div className="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 rounded-lg border border-border text-sm"
-        >
-          Cancel
-        </button>
-
-        <button
-          disabled={saving}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2"
-        >
-          {saving && (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          )}
-          Save
-        </button>
       </div>
-
-    </form>
     </Modal>
+    </>
   );
 }
 

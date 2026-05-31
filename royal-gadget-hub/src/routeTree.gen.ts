@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as BannersRouteImport } from './routes/banners'
@@ -24,6 +25,11 @@ const ReviewsRoute = ReviewsRouteImport.update({
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/banners': typeof BannersRoute
   '/categories': typeof CategoriesRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/products': typeof ProductsRoute
   '/reviews': typeof ReviewsRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/banners': typeof BannersRoute
   '/categories': typeof CategoriesRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/products': typeof ProductsRoute
   '/reviews': typeof ReviewsRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/banners': typeof BannersRoute
   '/categories': typeof CategoriesRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/products': typeof ProductsRoute
   '/reviews': typeof ReviewsRoute
 }
@@ -79,16 +88,25 @@ export interface FileRouteTypes {
     | '/banners'
     | '/categories'
     | '/login'
+    | '/orders'
     | '/products'
     | '/reviews'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/banners' | '/categories' | '/login' | '/products' | '/reviews'
+  to:
+    | '/'
+    | '/banners'
+    | '/categories'
+    | '/login'
+    | '/orders'
+    | '/products'
+    | '/reviews'
   id:
     | '__root__'
     | '/'
     | '/banners'
     | '/categories'
     | '/login'
+    | '/orders'
     | '/products'
     | '/reviews'
   fileRoutesById: FileRoutesById
@@ -98,6 +116,7 @@ export interface RootRouteChildren {
   BannersRoute: typeof BannersRoute
   CategoriesRoute: typeof CategoriesRoute
   LoginRoute: typeof LoginRoute
+  OrdersRoute: typeof OrdersRoute
   ProductsRoute: typeof ProductsRoute
   ReviewsRoute: typeof ReviewsRoute
 }
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -154,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   BannersRoute: BannersRoute,
   CategoriesRoute: CategoriesRoute,
   LoginRoute: LoginRoute,
+  OrdersRoute: OrdersRoute,
   ProductsRoute: ProductsRoute,
   ReviewsRoute: ReviewsRoute,
 }

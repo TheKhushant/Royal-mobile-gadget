@@ -38,6 +38,11 @@ const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const bannerRoutes = require('./routes/banners');   // 
 const reviewRoutes = require('./routes/reviews');
+// After other route imports
+const orderRoutes = require("./routes/orderRoutes");
+
+// Mount the routes
+app.use("/api", orderRoutes);     // Important: /api prefix
 
 // Protected Admin Routes (with auth middleware)
 const protect = require('./middleware/auth');

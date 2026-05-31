@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import { Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
 
 
-
 export const Route = createFileRoute("/products")({
   head: () => ({ meta: [{ title: "Products — Admin" }] }),
   component: ProductsPage,

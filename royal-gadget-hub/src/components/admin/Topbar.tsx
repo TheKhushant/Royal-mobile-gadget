@@ -1,14 +1,32 @@
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Menu } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-export function Topbar() {
+interface TopbarProps {
+  onMobileMenuClick?: () => void;
+}
+
+export function Topbar({ onMobileMenuClick }: TopbarProps) {
   const { user, logout } = useAuth();
+
   return (
     <header className="h-16 border-b border-border bg-card/50 backdrop-blur flex items-center justify-between px-4 md:px-6">
-      <div>
-        <h2 className="text-sm text-muted-foreground">Welcome back,</h2>
-        <p className="font-semibold text-sm">{user?.name || user?.email || "Admin"}</p>
+      
+      {/* Left Side - Hamburger for Mobile */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMobileMenuClick}
+          className="md:hidden p-2 -ml-2 rounded-lg hover:bg-muted transition-colors"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+
+        <div>
+          <h2 className="text-sm text-muted-foreground">Welcome back,</h2>
+          <p className="font-semibold text-sm">{user?.name || user?.email || "Admin"}</p>
+        </div>
       </div>
+
+      {/* Right Side */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
           <User className="w-4 h-4 text-primary-foreground" />

@@ -14,6 +14,21 @@ router.get('/product/:productId', async (req, res) => {
   }
 });
 
+// Get All Reviews (Admin)
+router.get('/', async (req, res) => {
+  try {
+    const reviews = await Review.find()
+      .populate('product', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json(reviews);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message
+    });
+  }
+});
+
 // Create Review
 router.post('/', async (req, res) => {
   try {

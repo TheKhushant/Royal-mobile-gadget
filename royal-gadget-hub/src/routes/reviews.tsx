@@ -1,139 +1,317 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { ConfirmDialog } from "@/components/admin/Modal";
 import { useRequireAuth } from "@/components/admin/useRequireAuth";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
-import { Loader2, Trash2, Eye, EyeOff, Star } from "lucide-react";
+import { Loader2, Trash2, Eye, EyeOff, Star, Search, ArrowUpDown, Calendar, Filter } from "lucide-react";
 
 export const Route = createFileRoute("/reviews")({
   head: () => ({ meta: [{ title: "Reviews — Admin" }] }),
   component: ReviewsPage,
 });
 
+interface Product {
+  _id?: string;
+  id?: string;
+  name: string;
+}
+
 interface Review {
-  _id?: string; id?: string;
-  product?: any; user?: any; userName?: string;
-  rating?: number; comment?: string; approved?: boolean; isVisible?: boolean;
+  _id?: string;
+  id?: string;
+  product?: Product | string;
+  userName?: string;
+  rating?: number;
+  comment?: string;
+  approved?: boolean;
+  isVisible?: boolean;
   createdAt?: string;
 }
 
+type SortOption = "newest" | "oldest" | "highest" | "lowest" | "name";
+
 function ReviewsPage() {
   const { ready } = useRequireAuth();
-  const [products, setProducts] = useState<any[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [search, setSearch] = useState("");
   const [productFilter, setProductFilter] = useState("");
+  const [visibilityFilter, setVisibilityFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [ratingFilter, setRatingFilter] = useState<number | "">("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  // Load Data
+  const loadReviews = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get("/reviews");
+      let allReviews: Review[] = Array.isArray(res.data) 
+        ? res.data 
+        : res.data?.reviews || res.data?.data || [];
+
+      setReviews(allReviews);
+    } catch (err) {
+      toast.error("Failed to load reviews");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadProducts = async () => {
     try {
       const r = await api.get("/products");
-      const list = Array.isArray(r.data) ? r.data : r.data?.products || r.data?.data || [];
+      const list = Array.isArray(r.data) ? r.data : r.data?.products || [];
       setProducts(list);
-      return list;
-    } catch { return []; }
-  };
-
-  const loadReviews = async (list: any[]) => {
-    setLoading(true);
-    try {
-      const targets = productFilter ? list.filter((p) => (p._id || p.id) === productFilter) : list;
-      const results = await Promise.allSettled(targets.map((p) => api.get(`/reviews/product/${p._id || p.id}`)));
-      const all: Review[] = [];
-      results.forEach((res, idx) => {
-        if (res.status === "fulfilled") {
-          const data = res.value.data;
-          const arr = Array.isArray(data) ? data : data?.reviews || data?.data || [];
-          arr.forEach((rv: any) => all.push({ ...rv, product: rv.product || targets[idx] }));
-        }
-      });
-      setReviews(all);
-    } catch { toast.error("Failed to load reviews"); }
-    finally { setLoading(false); }
+    } catch {}
   };
 
   useEffect(() => {
-    if (!ready) return;
-    (async () => {
-      const list = await loadProducts();
-      await loadReviews(list);
-    })();
+    if (ready) {
+      loadReviews();
+      loadProducts();
+    }
   }, [ready]);
 
-  useEffect(() => {
-    if (ready && products.length) loadReviews(products);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productFilter]);
+  // Filter + Sort Logic
+  const filteredReviews = useMemo(() => {
+    let result = [...reviews];
 
-  const toggle = async (r: Review) => {
+    // Search
+    if (search) {
+      const term = search.toLowerCase();
+      result = result.filter(r => 
+        r.comment?.toLowerCase().includes(term) ||
+        r.userName?.toLowerCase().includes(term) ||
+        (typeof r.product === 'object' && r.product?.name?.toLowerCase().includes(term))
+      );
+    }
+
+    // Product Filter
+    if (productFilter) {
+      result = result.filter(r => {
+        const pid = typeof r.product === 'object' ? r.product?._id || r.product?.id : r.product;
+        return pid === productFilter;
+      });
+    }
+
+    // Visibility Filter
+    if (visibilityFilter !== "all") {
+      result = result.filter(r => {
+        const visible = r.isVisible ?? r.approved ?? true;
+        return visibilityFilter === "visible" ? visible : !visible;
+      });
+    }
+
+    // Rating Filter
+    if (ratingFilter) {
+      result = result.filter(r => (r.rating || 0) >= Number(ratingFilter));
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      if (sortBy === "newest") {
+        return new Date(b.createdAt || "").getTime() - new Date(a.createdAt || "").getTime();
+      }
+      if (sortBy === "oldest") {
+        return new Date(a.createdAt || "").getTime() - new Date(b.createdAt || "").getTime();
+      }
+      if (sortBy === "highest") return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === "lowest") return (a.rating || 0) - (b.rating || 0);
+      if (sortBy === "name") {
+        const nameA = (typeof a.product === 'object' ? a.product?.name : "") || "";
+        const nameB = (typeof b.product === 'object' ? b.product?.name : "") || "";
+        return nameA.localeCompare(nameB);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [reviews, search, productFilter, visibilityFilter, ratingFilter, sortBy]);
+
+  const toggleVisibility = async (r: Review) => {
     const id = r._id || r.id;
+    const newVisible = !(r.isVisible ?? r.approved ?? true);
+
     try {
-      await api.put(`/reviews/${id}`, { approved: !r.approved, isVisible: !(r.isVisible ?? r.approved) });
-      toast.success("Updated");
-      loadReviews(products);
-    } catch { toast.error("Update failed"); }
+      await api.put(`/reviews/${id}`, { approved: newVisible, isVisible: newVisible });
+      toast.success(newVisible ? "Review is now visible" : "Review hidden");
+      loadReviews();
+    } catch {
+      toast.error("Failed to update");
+    }
   };
 
-  const del = async (id: string) => {
-    try { await api.delete(`/reviews/${id}`); toast.success("Deleted"); loadReviews(products); }
-    catch { toast.error("Delete failed"); }
+  const deleteReview = async (id: string) => {
+    try {
+      await api.delete(`/reviews/${id}`);
+      toast.success("Review deleted");
+      loadReviews();
+    } catch {
+      toast.error("Delete failed");
+    }
+  };
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "N/A";
+    return new Intl.DateTimeFormat('en-IN', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    }).format(new Date(dateStr));
   };
 
   if (!ready) return null;
 
   return (
     <AdminLayout>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <div>
-          <h1 className="text-2xl font-bold">Reviews</h1>
-          <p className="text-sm text-muted-foreground">{reviews.length} reviews</p>
+      <div className="bg-card border border-border rounded-xl p-4 mb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold">Reviews</h1>
+            <p className="text-sm text-muted-foreground">{filteredReviews.length} reviews</p>
+          </div>
+
+          <div className="flex gap-2">
+            <button onClick={() => setShowSearch(!showSearch)} className="w-7 h-7 rounded-xl border flex items-center justify-center">
+              <Search className="w-4 h-4" />
+            </button>
+            <button onClick={() => setShowFilters(!showFilters)} className="w-7 h-7 rounded-xl border flex items-center justify-center">
+              <Filter className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="px-3 py-2 bg-input border border-border rounded-lg text-sm min-w-[200px]">
-          <option value="">All products</option>
-          {products.map((p) => <option key={p._id || p.id} value={p._id || p.id}>{p.name}</option>)}
-        </select>
+
+        {/* Search */}
+        {showSearch && (
+          <div className="mt-4">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by user, comment or product..."
+              className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm"
+            />
+          </div>
+        )}
+
+        {/* Filters & Sort */}
+        {showFilters && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+              <option value="">All Products</option>
+              {products.map(p => (
+                <option key={p._id || p.id} value={p._id || p.id}>{p.name}</option>
+              ))}
+            </select>
+
+            <select value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value as any)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+              <option value="all">All Status</option>
+              <option value="visible">Visible</option>
+              <option value="hidden">Hidden</option>
+            </select>
+
+            <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value ? Number(e.target.value) : "")} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+              <option value="">Any Rating</option>
+              <option value="4">4+ Stars</option>
+              <option value="3">3+ Stars</option>
+              <option value="2">2+ Stars</option>
+            </select>
+
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="highest">Highest Rating</option>
+              <option value="lowest">Lowest Rating</option>
+              <option value="name">Product Name</option>
+            </select>
+          </div>
+        )}
       </div>
 
-      {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto mt-12" /> : (
-        <div className="space-y-3">
-          {reviews.length === 0 && <p className="text-muted-foreground text-center py-12">No reviews found</p>}
-          {reviews.map((r) => {
-            const id = (r._id || r.id)!;
-            const visible = r.isVisible ?? r.approved ?? true;
-            return (
-              <div key={id} className="bg-card border border-border rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">{r.userName || r.user?.name || "Anonymous"}</span>
-                      <span className="text-xs text-muted-foreground">on {r.product?.name || "—"}</span>
-                      <div className="flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} className={`w-3.5 h-3.5 ${i < (r.rating || 0) ? "fill-amber-400 text-amber-400" : "text-muted"}`} />
-                        ))}
+      {/* Reviews List */}
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      ) : (
+        <div className="space-y-2 pb-4">
+          {filteredReviews.length === 0 ? (
+            <div className="text-center py-20 text-muted-foreground">
+              No reviews found
+            </div>
+          ) : (
+            filteredReviews.map((r) => {
+              const id = (r._id || r.id)!;
+              const visible = r.isVisible ?? r.approved ?? true;
+              const rating = r.rating || 0;
+              const productName = typeof r.product === 'object' ? r.product?.name : "Unknown";
+
+              return (
+                <div
+                  key={id}
+                  className="bg-card border border-border rounded-lg p-2"
+                >
+                  <div className="flex items-start gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1 flex-wrap text-xs">
+                        <span className="font-medium text-xs">{r.userName || "Anonymous"}</span>
+                        <span className="text-xs text-muted-foreground">• {productName}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(r.createdAt)}</span>
                       </div>
-                      <span className={`px-2 py-0.5 rounded text-xs ${visible ? "bg-emerald-500/15 text-emerald-500" : "bg-muted text-muted-foreground"}`}>
-                        {visible ? "Visible" : "Hidden"}
-                      </span>
+
+                      <div className="flex items-center gap-1 mt-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`w-2 h-2 ${i < rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
+                        ))}
+                        <span className="ml-1 text-sm font-medium">({rating})</span>
+                      </div>
+
+                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                        {r.comment}
+                      </p>
                     </div>
-                    <p className="text-sm mt-2">{r.comment}</p>
+
+                    <div className="flex gap-1 ml-auto shrink-0">
+                      <button
+                        onClick={() => toggleVisibility(r)}
+                        className={`p-1.5 rounded-xl transition-colors ${visible ? "text-emerald-500 hover:bg-emerald-500/10" : "text-red-500 hover:bg-red-500/10"}`}
+                      >
+                        {visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+
+                      <button
+                        onClick={() => setConfirmId(id)}
+                        className="p-1.5 rounded-xl text-destructive hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <button onClick={() => toggle(r)} className="p-2 rounded hover:bg-muted text-primary" title={visible ? "Hide" : "Show"}>
-                      {visible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                    <button onClick={() => setConfirmId(id)} className="p-2 rounded hover:bg-muted text-destructive"><Trash2 className="w-4 h-4" /></button>
+
+                  <div className={`mt-1 inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${visible ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}>
+                    {visible ? "Visible" : "Hidden"}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       )}
 
-      <ConfirmDialog open={!!confirmId} onClose={() => setConfirmId(null)} onConfirm={() => confirmId && del(confirmId)} title="Delete review?" />
+      <ConfirmDialog
+        open={!!confirmId}
+        onClose={() => setConfirmId(null)}
+        onConfirm={() => confirmId && deleteReview(confirmId)}
+        title="Delete Review?"
+        description="This action cannot be undone."
+      />
     </AdminLayout>
   );
 }

@@ -1,14 +1,41 @@
 const express = require('express');
 const router = express.Router();
 const Category = require('../models/Category');
+const Product = require('../models/Product');
 
 // Get All Categories
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ order: 1 });
-    res.json(categories);
+    const categories = await Category.find({
+      isActive: true,
+    }).sort({ order: 1 });
+
+    const result = await Promise.all(
+      categories.map(async (category) => {
+        const count = await Product.countDocuments({
+          category: category._id,
+        });
+
+        const sampleProduct = await Product.findOne({
+          category: category._id,
+        });
+
+        return {
+          ...category.toObject(),
+          productCount: count,
+          sampleImage:
+            sampleProduct?.images?.[0]?.url ||
+            category?.image?.url ||
+            null,
+        };
+      })
+    );
+
+    res.json(result);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 });
 

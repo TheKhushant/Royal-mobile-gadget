@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
-import { categories, products } from "@/data/products";
+import { api } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 import { z } from "zod";
 
@@ -14,11 +14,34 @@ export const Route = createFileRoute("/shop")({
 });
 
 function Shop() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const { category } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [active, setActive] = useState<string | undefined>(category);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("featured");
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          api.get("/products?limit=1000"),
+          api.get("/categories"),
+        ]);
+
+        setProducts(productsRes.data);
+        setCategories(categoriesRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   useEffect(() => {
     setActive(category);
@@ -27,18 +50,32 @@ function Shop() {
   const filtered = useMemo(() => {
     let list = [...products];
     if (active) {
-      list = list.filter((p) => p.category === active);
+      if (active) {
+        list = list.filter(
+          (p) =>
+            typeof p.category === "object" &&
+            p.category?.name === active
+        );
+      }
     }
     if (q.trim()) {
       const term = q.toLowerCase();
-      list = list.filter((p) =>
-        p.name.toLowerCase().includes(term) ||
-        p.category.toLowerCase().includes(term)
-      );
+
+      list = list.filter((p) => {
+        const categoryName =
+          typeof p.category === "object"
+            ? p.category?.name || ""
+            : p.category || "";
+
+        return (
+          p.name?.toLowerCase().includes(term) ||
+          categoryName.toLowerCase().includes(term)
+        );
+      });
     }
     if (sort === "low") list.sort((a, b) => a.price - b.price);
     if (sort === "high") list.sort((a, b) => b.price - a.price);
-    if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
+    if (sort === "rating") list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     return list;
   }, [active, q, sort]);
 
@@ -47,6 +84,14 @@ function Shop() {
     setActive(undefined);
     navigate({ search: {} });
   };
+
+  if (loading) {
+  return (
+    <div className="py-20 text-center">
+      Loading products...
+    </div>
+  );
+}
 
   return (
   <section className="max-w-7xl mx-auto px-2 sm:px-6 py-6 sm:py-12">
@@ -116,24 +161,21 @@ function Shop() {
         All
       </button>
 
-      {categories.map((c) => {
-        const Icon = c.icon;
-        return (
-          <button
-            key={c.slug}
-            onClick={() => setActive(c.slug)}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all flex-shrink-0 ${
-              active === c.slug
-                ? "bg-rose-50 text-rose-700 font-medium"
-                : "bg-zinc-100"
-            }`}
-          >
-            <Icon size={16} />
-            {c.slug}
-          </button>
-        );
-      })}
+      {categories.map((c) => (
+        <button
+          key={c._id}
+          onClick={() => setActive(c.name)}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all flex-shrink-0 ${
+            active === c.name
+              ? "bg-rose-50 text-rose-700 font-medium"
+              : "bg-zinc-100"
+          }`}
+        >
+          {c.name}
+        </button>
+      ))}
     </div>
+    
 
     {/* 4th Row - Products Grid */}
     {/* Products Grid - Matching Trending Section Style */}
@@ -151,7 +193,7 @@ function Shop() {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
               {filtered.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           )}

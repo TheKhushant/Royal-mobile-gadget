@@ -153,20 +153,53 @@ function DashboardPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-        {[
-          { label: "Products", value: stats.products, icon: Package, color: "text-blue-500" },
-          { label: "Categories", value: stats.categories, icon: FolderTree, color: "text-emerald-500" },
-          { label: "Active Banners", value: stats.activeBanners, icon: ImageIcon, color: "text-amber-500" },
-          { label: "Low Stock", value: stats.lowStock, icon: AlertTriangle, color: "text-red-500" },
-        ].map((item, i) => (
-          <div key={i} className="bg-card border border-border rounded-xl p-4 flex flex-col items-center text-center">
-            <item.icon className={`w-6 h-6 ${item.color} mb-2`} />
-            <p className="text-2xl font-bold">{loadingStats ? "—" : item.value}</p>
-            <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
+     <div className="grid grid-cols-4 gap-2 mb-5">
+      {[
+        {
+          label: "Products",
+          value: stats.products,
+          icon: Package,
+          color: "text-blue-500 bg-blue-500/10",
+        },
+        {
+          label: "Categories",
+          value: stats.categories,
+          icon: FolderTree,
+          color: "text-emerald-500 bg-emerald-500/10",
+        },
+        {
+          label: "Banners",
+          value: stats.activeBanners,
+          icon: ImageIcon,
+          color: "text-amber-500 bg-amber-500/10",
+        },
+        {
+          label: "Stock",
+          value: stats.lowStock,
+          icon: AlertTriangle,
+          color: "text-red-500 bg-red-500/10",
+        },
+      ].map((item, i) => (
+        <div
+          key={i}
+          className="bg-card border border-border rounded-lg p-2 flex flex-col items-center text-center shadow-sm"
+        >
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${item.color}`}
+          >
+            <item.icon className="w-4 h-4" />
           </div>
-        ))}
-      </div>
+
+          <p className="text-base sm:text-lg font-bold leading-none">
+            {loadingStats ? "—" : item.value}
+          </p>
+
+          <p className="text-[9px] sm:text-[11px] text-muted-foreground mt-1 leading-tight">
+            {item.label}
+          </p>
+        </div>
+      ))}
+    </div>
 
       {/* Recent Orders Section - Now Real Data */}
       <div className="mb-4">

@@ -3,6 +3,7 @@ import { Minus, Plus, Trash2, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/cart")({
   component: Cart,
@@ -25,6 +26,26 @@ function Cart() {
       toast.error("Invalid coupon code");
     }
   };
+
+  // CartProvider ke andar
+    const placeOrder = async (shippingDetails: any) => {
+      const orderData = {
+        customerName: shippingDetails.name,
+        phone: shippingDetails.phone,
+        address: shippingDetails.address,
+        city: shippingDetails.city,
+        state: shippingDetails.state,
+        items: items.map(item => ({
+          product: item.product._id,
+          quantity: item.qty,
+          price: item.product.price
+        })),
+        total: total,
+      };
+
+      const res = await api.post("/orders", orderData);
+      return res.data;
+    };
 
   if (items.length === 0) {
     return (
@@ -58,20 +79,26 @@ function Cart() {
         <div className="space-y-3 sm:space-y-6">
           {items.map((i) => (
             <div
-              key={i.product.id}
+              key={i.product._id}
               className="royal-border bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-6 flex gap-3 sm:gap-6"
             >
               {/* Image */}
               <img
-                src={i.product.image}
+                src={
+                  i.product.images?.[0]?.url ||
+                  "/placeholder.jpg"
+                }
                 alt={i.product.name}
                 className="w-16 h-16 sm:w-28 sm:h-28 rounded-xl sm:rounded-2xl object-cover border shrink-0"
               />
 
               {/* Content */}
               <div className="flex-1 min-w-0">
+                {/* Category */}
                 <div className="text-[9px] sm:text-xs uppercase tracking-widest text-zinc-500">
-                  {i.product.category}
+                  {typeof i.product.category === "string" 
+                    ? i.product.category 
+                    : i.product.category?.name || "Uncategorized"}
                 </div>
 
                 <h3 className="font-semibold text-sm sm:text-lg leading-tight mt-1 line-clamp-2">
@@ -86,7 +113,7 @@ function Cart() {
                 <div className="flex items-center gap-2 sm:gap-4 mt-2 sm:mt-4 flex-wrap">
                   <div className="flex items-center border border-zinc-200 rounded-xl sm:rounded-2xl overflow-hidden">
                     <button
-                      onClick={() => setQty(i.product.id, i.qty - 1)}
+                      onClick={() => setQty(i.product._id, i.qty - 1)}
                       className="px-2 sm:px-4 py-1.5 sm:py-2.5 hover:bg-zinc-100"
                     >
                       <Minus size={14} />
@@ -97,7 +124,7 @@ function Cart() {
                     </span>
 
                     <button
-                      onClick={() => setQty(i.product.id, i.qty + 1)}
+                      onClick={() => setQty(i.product._id, i.qty + 1)}
                       className="px-2 sm:px-4 py-1.5 sm:py-2.5 hover:bg-zinc-100"
                     >
                       <Plus size={14} />
@@ -105,7 +132,7 @@ function Cart() {
                   </div>
 
                   <button
-                    onClick={() => remove(i.product.id)}
+                    onClick={() => remove(i.product._id)}
                     className="text-zinc-500 hover:text-rose-600 flex items-center gap-1 text-xs sm:text-sm"
                   >
                     <Trash2 size={14} />

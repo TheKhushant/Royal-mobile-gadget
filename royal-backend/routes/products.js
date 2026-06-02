@@ -37,7 +37,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
       stock: req.body.stock,
       description: req.body.description,
       category: req.body.category,
-      flashSale: req.body.flashSale === 'true' || req.body.flashSale === true,
+      isFlashSale: req.body.flashSale === 'true' || req.body.flashSale === true,
       images: imageData
     };
 

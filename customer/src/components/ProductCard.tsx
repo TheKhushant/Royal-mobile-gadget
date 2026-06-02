@@ -7,9 +7,13 @@ import { toast } from "sonner";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
-  const discount = Math.round(
-    ((product.mrp - product.price) / product.mrp) * 100
-  );
+  const discount = product.originalPrice
+  ? Math.round(
+      ((product.originalPrice - product.price) /
+        product.originalPrice) *
+        100
+    )
+  : 0;
 
   return (
     <motion.div
@@ -20,22 +24,25 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Image */}
       <Link
         to="/product/$id"
-        params={{ id: product.id }}
+        params={{ id: product._id }}
         className="block relative aspect-square overflow-hidden bg-zinc-50"
       >
         <img
-          src={product.image}
+          src={
+            product.images?.[0]?.url ||
+            "/placeholder.jpg"
+          }
           alt={product.name}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
-        {/* Badge */}
+        {/* Badge
         {product.badge && (
           <span className="absolute top-1 left-1 sm:top-3 sm:left-3 bg-amber-500 text-white text-[6px] sm:text-[10px] px-1 py-0.5 rounded-full font-medium">
             {product.badge}
           </span>
-        )}
+        )} */}
 
         {/* Discount */}
         {discount > 0 && (
@@ -49,13 +56,15 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="p-1.5 sm:p-5">
         {/* Category */}
         <div className="text-[7px] sm:text-xs uppercase tracking-wide text-zinc-500 line-clamp-1">
-          {product.category}
+          {typeof product.category === "string" 
+            ? product.category 
+            : product.category?.name || "Uncategorized"}
         </div>
 
         {/* Product Name */}
         <Link
           to="/product/$id"
-          params={{ id: product.id }}
+          params={{ id: product._id}}
           className="block mt-0.5"
         >
           <h3 className="font-medium text-[9px] sm:text-base leading-tight line-clamp-1 text-zinc-900 group-hover:text-rose-700">
@@ -73,7 +82,7 @@ export default function ProductCard({ product }: { product: Product }) {
               className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5"
             />
             <span className="text-[8px] sm:text-sm text-zinc-600">
-              {product.rating}
+              {product.rating || 0}
             </span>
           </div>
 
@@ -83,7 +92,7 @@ export default function ProductCard({ product }: { product: Product }) {
               ₹{product.price}
             </span>
             <span className="text-[7px] sm:text-sm line-through text-zinc-400">
-              ₹{product.mrp}
+              ₹{product.originalPrice}
             </span>
           </div>
         </div>

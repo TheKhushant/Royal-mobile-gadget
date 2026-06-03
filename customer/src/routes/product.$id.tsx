@@ -46,6 +46,7 @@ function ProductPage() {
   const { add } = useCart();
   const [qty, setQty] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   // Fetch Single Product from Backend
   const { data: p, isLoading, error } = useQuery<Product>({
     queryKey: ["product", id],
@@ -166,47 +167,59 @@ function ProductPage() {
 
         {/* Details Section */}
         <div className="space-y-3 sm:space-y-5">
-          <div className="text-[10px] sm:text-xs uppercase tracking-wide text-rose-600 font-medium">
-            {typeof p.category === "object"
-              ? p.category.name
-              : p.category}
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="text-[10px] uppercase text-rose-600">
+              {typeof p.category === "object"
+                ? p.category.name
+                : p.category}
+            </span>
+
+            <span className="bg-rose-600 text-white text-[10px] px-2 rounded-full">
+              {off}% OFF
+            </span>
+
+            <div className="flex items-center gap-1">
+              <Star size={11} fill="currentColor" className="text-amber-500" />
+              <span className="text-xs">4.8</span>
+            </div>
           </div>
 
-          <h1 className="font-display text-xl sm:text-4xl leading-tight tracking-tight">
+          <h1 className="font-display text-lg leading-tight mt-1">
             {p.name}
           </h1>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1.5">
-            <Star size={14} fill="currentColor" className="text-amber-500" />
-            <span className="font-medium text-sm sm:text-base">4.8</span>
-            <span className="text-zinc-500 text-[11px] sm:text-sm">(238 reviews)</span>
-          </div>
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xl font-bold">
+            ₹{Number(p.price).toLocaleString("en-IN")}
+          </span>
 
-          {/* Price */}
-          <div className="flex items-center flex-wrap gap-2">
-            <span className="text-xl sm:text-4xl font-semibold text-zinc-900">
-              ₹{p.price}
+          {p.originalPrice && (
+            <span className="text-xs line-through text-zinc-400">
+              ₹{Number(p.originalPrice).toLocaleString("en-IN")}
             </span>
+          )}
+        </div>
+          {/* Description */}
+          <div>
+            <p
+              className={`text-zinc-600 leading-relaxed text-xs sm:text-[15px] whitespace-pre-line ${
+                !showFullDescription ? "line-clamp-3" : ""
+              }`}
+            >
+              {p.description}
+            </p>
 
-            {p.originalPrice && (
-              <>
-                <span className="text-sm sm:text-xl line-through text-zinc-400">
-                  ₹{p.originalPrice}
-                </span>
-                {off > 0 && (
-                  <span className="bg-rose-600 text-white text-[10px] sm:text-sm font-bold px-2 sm:px-4 py-0.5 rounded-xl">
-                    -{off}% OFF
-                  </span>
-                )}
-              </>
+            {p.description && p.description.length > 150 && (
+              <button
+                onClick={() =>
+                  setShowFullDescription(!showFullDescription)
+                }
+                className="mt-2 text-rose-600 text-xs sm:text-sm font-medium hover:underline"
+              >
+                {showFullDescription ? "Show Less" : "More..."}
+              </button>
             )}
           </div>
-
-          {/* Description */}
-          <p className="text-zinc-600 leading-relaxed text-xs sm:text-[15px]">
-            {p.description}
-          </p>
 
           {/* Stock Status */}
           <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">

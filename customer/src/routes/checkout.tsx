@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 import { CheckCircle2 } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
@@ -190,7 +191,7 @@ function Checkout() {
 
           <div className="space-y-2 sm:space-y-4 text-xs sm:text-sm">
             {items.map((i) => (
-              <div key={i.product.id} className="flex justify-between gap-2">
+              <div key={i.product._id} className="flex justify-between gap-2">
                 <span className="line-clamp-1 pr-2">
                   {i.product.name} × {i.qty}
                 </span>

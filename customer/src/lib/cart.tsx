@@ -1,5 +1,26 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Product } from "@/data/products";
+
+type Product = {
+  _id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  description?: string;
+  stock?: number;
+  rating?: number;
+
+  category:
+    | string
+    | {
+        _id: string;
+        name: string;
+      };
+
+  images?: {
+    url: string;
+    publicId?: string;
+  }[];
+};
 
 type CartItem = { product: Product; qty: number };
 type CartCtx = {
@@ -29,13 +50,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add: CartCtx["add"] = (p, qty = 1) =>
     setItems((cur) => {
-      const ex = cur.find((i) => i.product.id === p.id);
-      if (ex) return cur.map((i) => (i.product.id === p.id ? { ...i, qty: i.qty + qty } : i));
+      const ex = cur.find((i) => i.product._id === p._id);
+      if (ex)
+        return cur.map((i) =>
+          i.product._id === p._id
+            ? { ...i, qty: i.qty + qty }
+            : i
+        );
       return [...cur, { product: p, qty }];
     });
-  const remove: CartCtx["remove"] = (id) => setItems((c) => c.filter((i) => i.product.id !== id));
+  const remove: CartCtx["remove"] = (id) =>
+    setItems((c) => c.filter((i) => i.product._id !== id));
   const setQty: CartCtx["setQty"] = (id, qty) =>
-    setItems((c) => c.map((i) => (i.product.id === id ? { ...i, qty: Math.max(1, qty) } : i)));
+    setItems((c) =>
+      c.map((i) =>
+        i.product._id === id
+          ? { ...i, qty: Math.max(1, qty) }
+          : i
+      )
+    );
   const clear = () => setItems([]);
   const count = items.reduce((s, i) => s + i.qty, 0);
   const total = items.reduce((s, i) => s + i.qty * i.product.price, 0);

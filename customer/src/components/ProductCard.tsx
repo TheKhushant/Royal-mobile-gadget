@@ -1,9 +1,27 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ShoppingCart, Star } from "lucide-react";
-import type { Product } from "@/data/products";
+// import type { Product } from "@/data/products";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+
+type Product = {
+  _id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  rating?: number;
+  category:
+    | string
+    | {
+        _id: string;
+        name: string;
+      };
+  images?: {
+    url: string;
+    publicId?: string;
+  }[];
+};
 
 export default function ProductCard({ product }: { product: Product }) {
   const { add } = useCart();
@@ -14,6 +32,8 @@ export default function ProductCard({ product }: { product: Product }) {
         100
     )
   : 0;
+  
+  
 
   return (
     <motion.div

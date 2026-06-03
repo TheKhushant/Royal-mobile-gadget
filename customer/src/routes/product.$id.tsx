@@ -14,6 +14,28 @@ import { useState } from "react";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
+type Product = {
+  _id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  description?: string;
+  stock: number;
+  rating?: number;
+  
+  category:
+    | string
+    | {
+        _id: string;
+        name: string;
+      };
+
+  images?: {
+    url: string;
+    publicId?: string;
+  }[];
+};
+
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
 });
@@ -24,7 +46,7 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
 
   // Fetch Single Product from Backend
-  const { data: p, isLoading, error } = useQuery({
+  const { data: p, isLoading, error } = useQuery<Product>({
     queryKey: ["product", id],
     queryFn: async () => {
       const res = await api.get(`/products/${id}`);
@@ -34,7 +56,7 @@ function ProductPage() {
   });
 
   // Fetch Related Products
-  const { data: allProducts = [] } = useQuery({
+  const { data: allProducts = [] } = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: async () => {
       const res = await api.get("/products");
@@ -65,11 +87,23 @@ function ProductPage() {
   }
 
   const related = allProducts
-    .filter((x: any) => 
-      x.category === p.category && 
-      String(x._id || x.id) !== String(p._id || p.id)
-    )
-    .slice(0, 4);
+  .filter((x: any) => {
+    const xCategory =
+      typeof x.category === "object"
+        ? x.category?._id
+        : x.category;
+
+    const pCategory =
+      typeof p.category === "object"
+        ? p.category?._id
+        : p.category;
+
+    return (
+      String(xCategory) === String(pCategory) &&
+      String(x._id) !== String(p._id)
+    );
+  })
+  .slice(0, 4);
 
   const off = p.originalPrice 
     ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) 
@@ -92,7 +126,7 @@ function ProductPage() {
         <div className="flex justify-center">
           <div className="royal-border bg-white rounded-xl sm:rounded-3xl overflow-hidden aspect-square shadow-sm w-56 sm:w-80">
             <img
-              src={p.images?.[0]?.url || p.image || "/placeholder.jpg"}
+              src={p.images?.[0]?.url || "/placeholder.jpg"}
               alt={p.name}
               className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
             />
@@ -102,7 +136,9 @@ function ProductPage() {
         {/* Details Section */}
         <div className="space-y-3 sm:space-y-5">
           <div className="text-[10px] sm:text-xs uppercase tracking-wide text-rose-600 font-medium">
-            {p.category?.name || p.category}
+            {typeof p.category === "object"
+              ? p.category.name
+              : p.category}
           </div>
 
           <h1 className="font-display text-xl sm:text-4xl leading-tight tracking-tight">
@@ -208,8 +244,8 @@ function ProductPage() {
             You May Also Like
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-            {related.map((r: any) => (
-              <ProductCard key={r._id || r.id} product={r} />
+            {related.map((r) => (
+              <ProductCard key={r._id || r._id} product={r} />
             ))}
           </div>
         </div>

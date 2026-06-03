@@ -31,8 +31,11 @@ function Shop() {
           api.get("/categories"),
         ]);
 
-        setProducts(productsRes.data);
-        setCategories(categoriesRes.data);
+        console.log("Products:", productsRes.data);
+        console.log("Categories:", categoriesRes.data);
+
+        setProducts(productsRes.data || []);
+        setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -43,21 +46,32 @@ function Shop() {
     loadData();
   }, []);
 
+  console.log("URL Category:", category);
+  console.log("Active:", active);
+  console.log("Products:", products);
+
   useEffect(() => {
     setActive(category);
   }, [category]);
 
+  console.log("Active:", active);
+  console.log("Products State:", products);
+
   const filtered = useMemo(() => {
     let list = [...products];
     if (active) {
-      if (active) {
-        list = list.filter(
-          (p) =>
-            typeof p.category === "object" &&
-            p.category?.name === active
-        );
-      }
+      list = list.filter((p) => {
+        if (typeof p.category === "object") {
+          return (
+            p.category?.name === active ||
+            p.category?._id === active
+          );
+        }
+
+        return p.category === active;
+      });
     }
+
     if (q.trim()) {
       const term = q.toLowerCase();
 
@@ -77,7 +91,7 @@ function Shop() {
     if (sort === "high") list.sort((a, b) => b.price - a.price);
     if (sort === "rating") list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     return list;
-  }, [active, q, sort]);
+  }, [products, active, q, sort]);
 
   const clearFilters = () => {
     setQ("");
@@ -151,7 +165,10 @@ function Shop() {
     {/* 3rd Row - Filters horizontal scroll */}
     <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-3 mb-6 scrollbar-hide">
       <button
-        onClick={() => setActive(undefined)}
+        onClick={() => {
+          setActive(undefined);
+          navigate({ search: {} });
+        }}
         className={`px-4 py-2 rounded-xl text-xs sm:text-sm transition-all flex-shrink-0 ${
           !active
             ? "bg-rose-50 text-rose-700 font-medium"

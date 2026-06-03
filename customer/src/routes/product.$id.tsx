@@ -10,9 +10,10 @@ import {
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 import ProductCard from "@/components/ProductCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+
 
 type Product = {
   _id: string;
@@ -44,7 +45,7 @@ function ProductPage() {
   const { id } = Route.useParams();
   const { add } = useCart();
   const [qty, setQty] = useState(1);
-
+  const [selectedImage, setSelectedImage] = useState(0);
   // Fetch Single Product from Backend
   const { data: p, isLoading, error } = useQuery<Product>({
     queryKey: ["product", id],
@@ -54,7 +55,9 @@ function ProductPage() {
     },
     enabled: !!id,
   });
-
+  useEffect(() => {
+      setSelectedImage(0);
+    }, [p?._id]);
   // Fetch Related Products
   const { data: allProducts = [] } = useQuery<Product[]>({
     queryKey: ["products"],
@@ -63,7 +66,7 @@ function ProductPage() {
       return res.data?.products || res.data || [];
     },
   });
-
+  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -123,10 +126,38 @@ function ProductPage() {
 
       <div className="grid md:grid-cols-2 gap-5 sm:gap-10">
         {/* Image Section */}
-        <div className="flex justify-center">
+        <div className="flex gap-4 justify-center">
+          {/* Left Side Thumbnails */}
+          {p.images && p.images.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {p.images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedImage === index
+                      ? "border-rose-600"
+                      : "border-zinc-200"
+                  }`}
+                >
+                  <img
+                    src={img.url}
+                    alt={`${p.name}-${index}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Main Image */}
           <div className="royal-border bg-white rounded-xl sm:rounded-3xl overflow-hidden aspect-square shadow-sm w-56 sm:w-80">
             <img
-              src={p.images?.[0]?.url || "/placeholder.jpg"}
+              src={
+                p.images?.[selectedImage]?.url ||
+                p.images?.[0]?.url ||
+                "/placeholder.jpg"
+              }
               alt={p.name}
               className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
             />

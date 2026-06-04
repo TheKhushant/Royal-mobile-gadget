@@ -73,6 +73,37 @@ type Banner = {
 //   );
 // }
 function HeroSlider() {
+
+  // const { data: products = [], isLoading: productsLoading } = useQuery({
+  //   queryKey: ["flash-sale-products"],
+  //   queryFn: async () => {
+  //     const res = await api.get("/products");
+
+  //     const allProducts =
+  //       res.data?.products || res.data || [];
+
+  //     return allProducts.filter(
+  //       (p: any) => p.isFlashSale === true
+  //     );
+  //   },
+  // });
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: ["flash-sale-products"],
+    queryFn: async () => {
+      const res = await api.get("/products");
+
+      const allProducts = res.data?.products || res.data || [];
+
+      return allProducts
+        .filter((p: any) => p.isFlashSale === true)
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
+    },
+  });
+
   const { data: banners = [], isLoading } = useQuery<Banner[]>({
     queryKey: ["banners"],
     queryFn: async () => {
@@ -294,14 +325,27 @@ function Home() {
 
     // Fetch Trending Products (Limited + Sorted)
   const { data: products = [], isLoading: productsLoading } = useQuery({
-    queryKey: ["trending-products"],
+    queryKey: ["flash-sale-products"],
     queryFn: async () => {
-      const res = await api.get("/products?limit=8");   // Backend supports limit
-      return res.data?.products || res.data || [];
+      const res = await api.get("/products");
+
+      const allProducts =
+        res.data?.products || res.data || [];
+
+      return allProducts
+        .filter((p: any) => p.isFlashSale === true)
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
     },
   });
 
+  
+
   const trending = products;   // No need to slice now
+  
 
   return (
     <>
@@ -582,14 +626,19 @@ function Home() {
 
         <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
           {productsLoading ? (
-            <div className="col-span-full py-12 text-center">Loading trending products...</div>
+            <div className="col-span-full py-12 text-center">
+              Loading trending products...
+            </div>
           ) : trending.length === 0 ? (
             <div className="col-span-full py-12 text-center text-zinc-500">
               No trending products available
             </div>
           ) : (
             trending.map((p: any) => (
-              <ProductCard key={p._id || p.id} product={p} />
+              <ProductCard
+                key={p._id}
+                product={p}
+              />
             ))
           )}
         </div>

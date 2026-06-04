@@ -32,6 +32,10 @@ export default function ProductCard({ product }: { product: Product }) {
         100
     )
   : 0;
+
+  const autoRating = (
+    4 + ((product.name.length % 11) / 10)
+  ).toFixed(1);
   
   
 
@@ -102,17 +106,18 @@ export default function ProductCard({ product }: { product: Product }) {
               className="text-amber-500 fill-current sm:w-3.5 sm:h-3.5"
             />
             <span className="text-[8px] sm:text-sm text-zinc-600">
-              {product.rating || 0}
+              {product.rating || autoRating}
             </span>
           </div>
 
           {/* Price */}
           <div className="flex flex-col items-end leading-none">
             <span className="text-[10px] sm:text-2xl font-semibold text-zinc-900">
-              ₹{product.price}
+              ₹{Number(product.price).toLocaleString("en-IN")}
             </span>
+
             <span className="text-[7px] sm:text-sm line-through text-zinc-400">
-              ₹{product.originalPrice}
+              ₹{Number(product.originalPrice).toLocaleString("en-IN")}
             </span>
           </div>
         </div>

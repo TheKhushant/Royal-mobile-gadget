@@ -31,8 +31,8 @@ function Shop() {
           api.get("/categories"),
         ]);
 
-        console.log("Products:", productsRes.data);
-        console.log("Categories:", categoriesRes.data);
+        // console.log("Products:", productsRes.data);
+        // console.log("Categories:", categoriesRes.data);
 
         setProducts(productsRes.data || []);
         setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
@@ -46,16 +46,16 @@ function Shop() {
     loadData();
   }, []);
 
-  console.log("URL Category:", category);
-  console.log("Active:", active);
-  console.log("Products:", products);
+  // console.log("URL Category:", category);
+  // console.log("Active:", active);
+  // console.log("Products:", products);
 
   useEffect(() => {
     setActive(category);
   }, [category]);
 
-  console.log("Active:", active);
-  console.log("Products State:", products);
+  // console.log("Active:", active);
+  // console.log("Products State:", products);
 
   const filtered = useMemo(() => {
     let list = [...products];

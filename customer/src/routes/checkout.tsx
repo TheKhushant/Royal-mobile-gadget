@@ -15,7 +15,60 @@ function Checkout() {
   const { items, total, clear } = useCart();
   const [pay, setPay] = useState("cod");
   const [done, setDone] = useState(false);
+  const [formData, setFormData] = useState({
+    customerName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "Nagpur",
+    state: "Maharashtra",
+    pincode: "",
+  });
   const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const continueToPayment = async () => {
+    try {
+      const orderData = {
+        customerName: formData.customerName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+
+        items: items.map((item) => ({
+          product: item.product._id,
+          quantity: item.qty,
+          price: item.product.price,
+        })),
+
+        total,
+        status: "Pending",
+        paymentStatus: "Pending",
+      };
+
+      const response = await api.post("/orders", orderData);
+
+      console.log("Order Created:", response.data);
+
+      toast.success("Order saved successfully");
+
+      navigate({
+        to: "/payment",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to save order");
+    }
+  };
 
   const placeOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,12 +133,18 @@ function Checkout() {
             <div className="grid sm:grid-cols-2 gap-3 sm:gap-5">
               <input
                 required
+                name="customerName"
+                value={formData.customerName}
+                onChange={handleChange}
                 placeholder="Full Name"
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
               />
 
               <input
                 required
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 placeholder="Phone Number"
                 maxLength={15}
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
@@ -94,25 +153,36 @@ function Checkout() {
               <input
                 required
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Email Address"
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none sm:col-span-2"
               />
 
               <input
                 required
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
                 placeholder="Full Address"
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none sm:col-span-2"
               />
 
               <input
                 required
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
                 placeholder="City"
-                defaultValue="Nagpur"
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
               />
 
               <input
                 required
+                name="pincode"
+                value={formData.pincode}
+                onChange={handleChange}
                 placeholder="Pincode"
                 maxLength={6}
                 className="bg-zinc-50 border border-zinc-200 rounded-xl sm:rounded-2xl px-3 sm:px-5 py-2.5 sm:py-3.5 text-sm focus:border-rose-300 outline-none"
@@ -121,7 +191,7 @@ function Checkout() {
 
             <button
               type="button"
-              onClick={() => navigate({ to: "/payment" })}
+              onClick={continueToPayment}
               className="w-full mt-5 sm:mt-6 bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-base hover:shadow-lg transition-all"
             >
               Continue to Payment

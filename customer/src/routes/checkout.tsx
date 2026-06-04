@@ -129,7 +129,7 @@ function Checkout() {
           </div>
 
           {/* Payment Method */}
-          <div className="royal-border bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8">
+          {/* <div className="royal-border bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8">
             <h3 className="font-display text-lg sm:text-2xl mb-4 sm:mb-6">
               Payment Method
             </h3>
@@ -180,7 +180,7 @@ function Checkout() {
                 </label>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Order Summary */}
@@ -209,15 +209,15 @@ function Checkout() {
             <span className="text-gradient-gold">₹{total}</span>
           </div>
 
-          <button
+          {/* <button
             type="submit"
             className="mt-5 sm:mt-8 w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white font-semibold py-3 sm:py-4 rounded-xl sm:rounded-2xl text-sm sm:text-lg shadow-lg transition-all"
           >
             Place Order
-          </button>
+          </button> */}
 
           <p className="text-center text-[10px] sm:text-xs text-zinc-500 mt-3 sm:mt-5">
-            Secure checkout • COD available
+            Secure checkout • for any technical issue contact on 8007307435
           </p>
         </aside>
       </form>

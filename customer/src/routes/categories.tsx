@@ -14,9 +14,7 @@ type Category = {
   productCount: number;
   description: string;
   sampleImage?: string;
-  image?: {
-    url?: string;
-  };
+  image?: string;
 };
 
 function Categories() {
@@ -76,7 +74,7 @@ function Categories() {
           >
             <img
               src={
-                c.image?.url ||
+                c.image ||
                 "https://placehold.co/600x400?text=Category"
               }
               alt={c.name}

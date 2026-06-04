@@ -14,17 +14,17 @@ export function Modal({
   children: ReactNode;
   size?: "sm" | "md" | "lg";
 }) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  // useEffect(() => {
+  //   if (!open) return;
+  //   const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+  //   window.addEventListener("keydown", onKey);
+  //   return () => window.removeEventListener("keydown", onKey);
+  // }, [open, onClose]);
 
   if (!open) return null;
   const sizes = { sm: "max-w-md", md: "max-w-xl", lg: "max-w-3xl" };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div
         className={`${sizes[size]} w-full bg-card border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col`}
         onClick={(e) => e.stopPropagation()}

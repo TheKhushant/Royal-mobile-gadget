@@ -85,6 +85,8 @@ function ProductsPage() {
     if (ready) load();
   }, [ready]);
 
+  
+
   const filtered = useMemo(() => {
     return items.filter((p) => {
       if (search && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -115,6 +117,7 @@ function ProductsPage() {
   };
 
   if (!ready) return null;
+  
 
   return (
     <AdminLayout>
@@ -512,6 +515,30 @@ function ProductModal({
     setImageUrls([""]);
   }, [open, product, isEdit]);
 
+  const pasteImageUrl = async (index: number) => {
+    try {
+      const text = await navigator.clipboard.readText();
+
+      if (!text.startsWith("http")) {
+        toast.error("Clipboard me valid URL nahi hai");
+        return;
+      }
+
+      const updated = [...imageUrls];
+      updated[index] = text;
+
+      // Last input hai to naya empty input add karo
+      if (index === imageUrls.length - 1) {
+        updated.push("");
+      }
+
+      setImageUrls(updated);
+      toast.success("Image URL pasted");
+    } catch {
+      toast.error("Clipboard access denied");
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -572,7 +599,21 @@ function ProductModal({
             <input
               className={inp}
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              onClick={async () => {
+                try {
+                  const text = await navigator.clipboard.readText();
+
+                  setForm((prev) => ({
+                    ...prev,
+                    name: text,
+                  }));
+                } catch (err) {
+                  console.log("Clipboard access denied");
+                }
+              }}
               required
             />
           </Field>
@@ -669,8 +710,23 @@ function ProductModal({
             className={`${inp} min-h-[70px]`}
             value={form.description || ""}
             onChange={(e) =>
-              setForm({ ...form, description: e.target.value })
+              setForm({
+                ...form,
+                description: e.target.value,
+              })
             }
+            onClick={async () => {
+              try {
+                const text = await navigator.clipboard.readText();
+
+                setForm((prev) => ({
+                  ...prev,
+                  description: text,
+                }));
+              } catch (err) {
+                console.log("Clipboard access denied");
+              }
+            }}
           />
         </Field>
 
@@ -759,24 +815,6 @@ function ProductModal({
 
             </div>
 
-            {/* Upload Files */}
-            <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">
-                Upload Images from Device
-              </label>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) => {
-                  if (e.target.files) {
-                    setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-                  }
-                }}
-                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
-              />
-            </div>
-
             {/* Add URLs */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">
@@ -794,7 +832,30 @@ function ProductModal({
                       updated[index] = e.target.value;
                       setImageUrls(updated);
                     }}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text");
+
+                      const updated = [...imageUrls];
+                      updated[index] = pasted;
+
+                      if (index === imageUrls.length - 1) {
+                        updated.push("");
+                      }
+
+                      setImageUrls(updated);
+
+                      e.preventDefault();
+                    }}
                   />
+
+                  <button
+                    type="button"
+                    onClick={() => pasteImageUrl(index)}
+                    className="px-3 border rounded-lg"
+                  >
+                    Paste
+                  </button>
+
                   {index === imageUrls.length - 1 && (
                     <button
                       type="button"
@@ -816,6 +877,26 @@ function ProductModal({
                 </div>
               ))}
             </div>
+
+            {/* Upload Files */}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                Upload Images from Device
+              </label>
+              <input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    setSelectedFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+                  }
+                }}
+                className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
+              />
+            </div>
+
+            
 
           </div>
         </Field>

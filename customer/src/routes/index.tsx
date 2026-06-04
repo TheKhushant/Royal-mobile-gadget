@@ -1,46 +1,145 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { ArrowRight, BadgeCheck, Sparkles, Truck, Shield, Gift, Star, Trophy } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, BadgeCheck, Truck, Shield, Gift, Star, Trophy } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
+
 export const Route = createFileRoute("/")({ component: Home });
 
+type Banner = {
+  _id: string;
+  title?: string;
+  image?: {
+    url?: string;
+  } | string;
+};
+
+// function HeroSlider() {
+//   const [currentImage, setCurrentImage] = useState(0);
+
+//   useEffect(() => {
+//     if (banners.length === 0) return;
+//     const interval = setInterval(() => {
+//       setCurrentImage((prev) => (prev + 1) % banners.length);
+//     }, 3000);
+//     return () => clearInterval(interval);
+//   }, [banners.length]);
+
+//   useEffect(() => {
+//     banners.forEach((banner) => {
+//       const img = new Image();
+
+//       img.src =
+//         typeof banner.image === "string"
+//           ? banner.image
+//           : banner.image?.url || "";
+//     });
+//   }, [banners]);
+
+//   if (isLoading || banners.length === 0) {
+//     return <div className="w-full h-[350px] bg-zinc-100 rounded-3xl animate-pulse" />;
+//   }
+
+//   const { data: banners = [], isLoading } = useQuery<Banner[]>({
+//     queryKey: ["banners"],
+//     queryFn: async () => {
+//       const res = await api.get("/banners");
+//       return res.data || [];
+//     },
+
+//     staleTime: 1000 * 60 * 30,
+//     gcTime: 1000 * 60 * 60,
+//     refetchOnWindowFocus: false,
+//     refetchOnReconnect: false,
+//     refetchOnMount: false,
+//   });
+  
+
+//   return (
+//     <AnimatePresence mode="wait">
+//       <motion.img
+//         key={currentImage}
+//         src={banners[currentImage]?.image?.url || banners[currentImage]?.image}
+//         alt={banners[currentImage]?.title || "Banner"}
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         exit={{ opacity: 0 }}
+//         transition={{ duration: 0.5 }}
+//       />
+//     </AnimatePresence>
+//   );
+// }
 function HeroSlider() {
-  const { data: banners = [], isLoading } = useQuery({
+  const { data: banners = [], isLoading } = useQuery<Banner[]>({
     queryKey: ["banners"],
     queryFn: async () => {
       const res = await api.get("/banners");
       return res.data || [];
     },
+
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const [currentImage, setCurrentImage] = useState(0);
 
+  // Auto slider
   useEffect(() => {
     if (banners.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % banners.length);
     }, 3000);
+
     return () => clearInterval(interval);
   }, [banners.length]);
 
-  if (isLoading || banners.length === 0) {
-    return <div className="w-full h-[350px] bg-zinc-100 rounded-3xl animate-pulse" />;
+  // Preload images
+  useEffect(() => {
+    banners.forEach((banner) => {
+      const img = new Image();
+
+      img.src =
+        typeof banner.image === "string"
+          ? banner.image
+          : banner.image?.url || "";
+    });
+  }, [banners]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-[350px] bg-zinc-100 rounded-3xl animate-pulse" />
+    );
   }
 
+  if (!banners.length) {
+    return null;
+  }
+
+  const imageSrc =
+    typeof banners[currentImage]?.image === "string"
+      ? banners[currentImage]?.image
+      : banners[currentImage]?.image?.url;
+
   return (
-    <motion.img
-      key={currentImage}
-      src={banners[currentImage]?.image?.url || banners[currentImage]?.image}
-      alt={banners[currentImage]?.title || "Banner"}
-      className="w-full h-auto object-cover object-center"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-    />
+    <AnimatePresence mode="wait">
+      <motion.img
+        key={currentImage}
+        src={imageSrc}
+        alt={banners[currentImage]?.title || "Banner"}
+        className="w-full h-full object-cover"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+      />
+    </AnimatePresence>
   );
 }
 
@@ -71,19 +170,28 @@ function Countdown() {
   return <div className="flex gap-3 justify-center">{box(t.h, "Hours")}{box(t.m, "Min")}{box(t.s, "Sec")}</div>;
 }
 
+const TOYS = Object.values(
+  import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
+    eager: true,
+    query: "?url",
+    import: "default",
+  })
+) as string[];
+
 // floting photo component
 function FloatingToy() {
   const [showMessage, setShowMessage] = useState(true);
   const [currentToy, setCurrentToy] = useState(0);
 
   // Auto import all images from HomeToys folder
-  const toys = Object.values(
-    import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
-      eager: true,
-      query: "?url",
-      import: "default",
-    })
-  ) as string[];
+  // const toys = Object.values(
+  //   import.meta.glob("@/assets/HomeToys/*.{png,jpg,jpeg}", {
+  //     eager: true,
+  //     query: "?url",
+  //     import: "default",
+  //   })
+  // ) as string[];
+  const toys = TOYS;
 
   // Hide hello message after 4 sec
   useEffect(() => {
@@ -99,6 +207,13 @@ function FloatingToy() {
 
     return () => clearInterval(interval);
   }, [toys.length]);
+
+  useEffect(() => {
+    toys.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
 
   return (
     <motion.div
@@ -120,7 +235,7 @@ function FloatingToy() {
 
       {/* Toy image */}
       <motion.img
-        key={currentToy}
+        // key={currentToy}
         src={toys[currentToy]}
         alt="Toy"
         animate={{ y: [0, -8, 0] }}

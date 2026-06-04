@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingCart, Menu, X, Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/lib/cart";
 
 
@@ -16,6 +16,34 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { count } = useCart();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleEsc);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [open]);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-2xl bg-white/55 supports-[backdrop-filter]:bg-white/45 border-b border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
@@ -89,7 +117,10 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="lg:hidden border-t border-white/20 bg-white/70 backdrop-blur-2xl">
+        <div
+          ref={menuRef}
+          className="lg:hidden border-t border-white/20 bg-white/70 backdrop-blur-2xl"
+        >
           <ul className="px-3 py-3 space-y-1">
             {links.map((l) => (
               <li key={l.to}>

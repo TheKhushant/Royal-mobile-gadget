@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/payment")({
   component: Payment,
@@ -10,18 +11,60 @@ function Payment() {
   const navigate = useNavigate();
 
   // demo status
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState("Pending");
+  const [loading, setLoading] = useState(false);
+  const orderId =
+  localStorage.getItem("currentOrderId");
+  // console.log("Current Order ID:", orderId);
 
-  const checkPayment = () => {
-    if (status === "approved") {
-      toast.success("Payment approved!");
-      navigate({ to: "/order-confirmed" });
-    } else if (status === "rejected") {
-      toast.error("Payment rejected. Please try again.");
-    } else {
-      toast.info("Payment verification is pending.");
+  const checkPayment = async () => {
+  try {
+    setLoading(true);
+
+    const orderId =
+      localStorage.getItem("currentOrderId");
+
+    if (!orderId) {
+      toast.error("Order not found");
+      return;
     }
-  };
+
+    const res = await api.get(
+      `/orders/${orderId}`
+    );
+
+    const order = res.data.order;
+
+    setStatus(order.status);
+
+    if (order.status === "Confirmed") {
+      toast.success("Payment approved!");
+
+      navigate({
+        to: "/order-confirmed",
+      });
+
+      return;
+    }
+
+    if (order.status === "Cancelled") {
+      toast.error(
+        "Payment rejected. Please contact support."
+      );
+
+      return;
+    }
+
+    toast.info(
+      "Payment verification is still pending."
+    );
+  } catch (err) {
+    console.error(err);
+    toast.error("Unable to check payment");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="max-w-xl mx-auto px-4 py-10">
@@ -63,9 +106,12 @@ function Payment() {
         {/* Check Status */}
         <button
           onClick={checkPayment}
-          className="w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white py-3 rounded-2xl font-semibold"
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-rose-600 to-rose-700 text-white py-3 rounded-2xl font-semibold disabled:opacity-50"
         >
-          Check Payment Status
+          {loading
+            ? "Checking..."
+            : "Check Payment Status"}
         </button>
 
         <p className="text-xs text-zinc-500 mt-4">

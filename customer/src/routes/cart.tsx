@@ -44,6 +44,10 @@ function Cart() {
       };
 
       const res = await api.post("/orders", orderData);
+      localStorage.setItem(
+        "currentOrderId",
+        res.data.order._id
+      );
       return res.data;
     };
 

@@ -59,6 +59,17 @@ function Checkout() {
 
       console.log("Order Created:", response.data);
 
+      // SAVE ORDER ID
+      localStorage.setItem(
+        "currentOrderId",
+        response.data.order._id
+      );
+
+      console.log(
+        "Saved Order ID:",
+        response.data.order._id
+      );
+
       toast.success("Order saved successfully");
 
       navigate({

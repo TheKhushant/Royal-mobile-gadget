@@ -32,20 +32,22 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`${collapsed ? "w-16" : "w-64"} hidden md:flex flex-col bg-card border-r border-border transition-all duration-200`}
+        className={`${collapsed ? "w-16" : "w-64"} hidden md:flex flex-col bg-white border-r border-[#E5E0D8] transition-all duration-200 shadow-sm`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E0D8]">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#9F1239] flex items-center justify-center shadow-md">
                 <Zap className="w-4 h-4 text-primary-foreground" />
               </div>
-              <span className="font-bold text-sm">Royal Mobile</span>
+              <span className="font-bold text-sm text-[#1F2937]">
+                Royal Mobile
+              </span>
             </div>
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded hover:bg-muted text-muted-foreground"
+            className="p-1.5 rounded-xl hover:bg-[#F8F5F0] text-[#374151]"
             aria-label="Toggle sidebar"
           >
             <ChevronLeft className={`w-4 h-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
@@ -63,8 +65,8 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
                 onClick={onClose}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   active
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20 shadow-sm"
+                    : "text-[#374151] hover:bg-[#F8F5F0] hover:text-[#9F1239]"
                 }`}
               >
                 <Icon className="w-5 h-5 shrink-0" />
@@ -85,17 +87,17 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
           />
 
           {/* Sliding Sidebar */}
-          <div className="absolute left-0 top-0 bottom-0 w-72 bg-card border-r border-border shadow-2xl transform transition-transform duration-300">
-            <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+          <div className="absolute left-0 top-0 bottom-0 w-72 bg-white border-r border-[#E5E0D8] shadow-2xl transform transition-transform duration-300">
+            <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E0D8]">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#9F1239] flex items-center justify-center shadow-md">
                   <Zap className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <span className="font-bold text-sm">Royal Mobile</span>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 rounded hover:bg-muted text-muted-foreground"
+                className="p-2 rounded-xl hover:bg-[#F8F5F0] text-[#374151]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -112,8 +114,8 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
                     onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       active
-                        ? "bg-primary/15 text-primary"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        ? "bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/20"
+                        : "text-[#374151] hover:bg-[#F8F5F0] hover:text-[#9F1239]"
                     }`}
                   >
                     <Icon className="w-5 h-5 shrink-0" />
@@ -124,6 +126,7 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
             </nav>
           </div>
         </div>
+        
       )}
     </>
   );

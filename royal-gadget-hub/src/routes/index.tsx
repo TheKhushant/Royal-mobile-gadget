@@ -226,8 +226,8 @@ function DashboardPage() {
   return (
     <AdminLayout>
       <div className="mb-6">
-        <h1 className="text-xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Welcome back! Here's what's happening today.</p>
+        <h1 className="text-2xl font-bold text-[#1F2937]">Dashboard</h1>
+        <p className="text-sm text-[#374151]">Welcome back! Here's what's happening today.</p>
       </div>
 
       {/* Stats Cards */}
@@ -237,30 +237,30 @@ function DashboardPage() {
           label: "Products",
           value: stats.products,
           icon: Package,
-          color: "text-blue-500 bg-blue-500/10",
+          color: "text-[#D4AF37] bg-[#D4AF37]/10",
         },
         {
           label: "Categories",
           value: stats.categories,
           icon: FolderTree,
-          color: "text-emerald-500 bg-emerald-500/10",
+          color: "text-[#9F1239] bg-[#9F1239]/10",
         },
         {
           label: "Banners",
           value: stats.activeBanners,
           icon: ImageIcon,
-          color: "text-amber-500 bg-amber-500/10",
+          color: "text-[#D4AF37] bg-[#D4AF37]/10",
         },
         {
           label: "Stock",
           value: stats.lowStock,
           icon: AlertTriangle,
-          color: "text-red-500 bg-red-500/10",
+          color: "text-[#9F1239] bg-[#9F1239]/10",
         },
       ].map((item, i) => (
         <div
           key={i}
-          className="bg-card border border-border rounded-lg p-2 flex flex-col items-center text-center shadow-sm"
+          className="bg-white border border-[#E5E0D8] rounded-2xl p-3 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all"
         >
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${item.color}`}
@@ -272,7 +272,7 @@ function DashboardPage() {
             {loadingStats ? "—" : item.value}
           </p>
 
-          <p className="text-[9px] sm:text-[11px] text-muted-foreground mt-1 leading-tight">
+          <p className="text-[9px] sm:text-[11px] text-[#374151] mt-1 leading-tight">
             {item.label}
           </p>
         </div>
@@ -289,7 +289,7 @@ function DashboardPage() {
             </h2>
             <button
               onClick={refreshOrders}
-              className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+              className="w-9 h-9 rounded-xl border border-[#E5E0D8] bg-white hover:bg-[#F8F5F0] flex items-center justify-center transition-all"
             >
               <RefreshCw
                 className={`w-4 h-4 ${
@@ -306,7 +306,7 @@ function DashboardPage() {
           </Link>
         </div>
 
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#E5E0D8] rounded-2xl overflow-hidden shadow-sm">
           {loadingStats ? (
             <div className="py-4 text-center text-xs text-muted-foreground">
               Loading...
@@ -324,10 +324,10 @@ function DashboardPage() {
                   className={`p-2 sm:p-4 cursor-pointer transition-colors
                     ${
                       order.status === "Confirmed"
-                        ? "bg-green-500/10 border-l-4 border-green-500 hover:bg-green-500/20"
-                        : order.status === "Cancelled"
-                        ? "bg-red-500/10 border-l-4 border-red-500 hover:bg-red-500/20"
-                        : "bg-yellow-500/10 border-l-4 border-yellow-500 hover:bg-yellow-500/20"
+                      ? "bg-green-500/10 border-l-4 border-green-500 hover:bg-green-500/20"
+                      : order.status === "Cancelled"
+                      ? "bg-[#9F1239]/10 border-l-4 border-[#9F1239] hover:bg-[#9F1239]/20"
+                      : "bg-yellow-500/10 border-l-4 border-yellow-500 hover:bg-yellow-500/20"
                     }
                   `}
                 >
@@ -354,7 +354,7 @@ function DashboardPage() {
                               </span>
 
                               {product.extra > 0 && (
-                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+                                <span className="px-2 py-0.5 rounded-full bg-[#D4AF37]/10 text-[#D4AF37] text-[10px]">
                                   +{product.extra}
                                 </span>
                               )}
@@ -408,7 +408,7 @@ function DashboardPage() {
             <Link
               key={p._id || p.id}
               to="/products"
-              className="bg-card border border-border rounded-xl p-2 sm:p-4 hover:border-primary/50 transition-all"
+              className="bg-white border border-[#E5E0D8] rounded-2xl p-3 sm:p-4 hover:border-[#D4AF37] transition-all hover:shadow-md"
             >
               <div className="flex flex-col gap-1">
                 <h3 className="font-medium text-xs sm:text-sm line-clamp-2">
@@ -416,15 +416,15 @@ function DashboardPage() {
                 </h3>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-[#374151]">
                     ₹{p.price}
                   </p>
 
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                       p.stock > 5
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-[#D4AF37]/10 text-[#D4AF37]"
+                        : "bg-[#9F1239]/10 text-[#9F1239]"
                     }`}
                   >
                     {p.stock}
@@ -449,9 +449,9 @@ function DashboardPage() {
             <Link
               key={action.to}
               to={action.to}
-              className="flex flex-col items-center justify-center bg-card border border-border hover:border-primary/50 rounded-2xl p-6 transition-all hover:shadow-sm"
+              className="flex flex-col items-center justify-center bg-white border border-[#E5E0D8] hover:border-[#D4AF37] rounded-2xl p-6 transition-all hover:shadow-lg"
             >
-              <action.icon className="w-7 h-7 text-primary mb-3" />
+              <action.icon className="w-7 h-7 text-[#D4AF37] mb-3" />
               <span className="text-sm font-medium text-center">{action.label}</span>
             </Link>
           ))}
@@ -460,7 +460,7 @@ function DashboardPage() {
 
       {selectedOrder && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col">
+          <div className="bg-white border border-[#E5E0D8] rounded-3xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col">
 
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b shrink-0">
@@ -469,7 +469,7 @@ function DashboardPage() {
               </h2>
               <button
                 onClick={refreshOrders}
-                className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+                className="w-9 h-9 rounded-xl border border-[#E5E0D8] bg-white hover:bg-[#F8F5F0] flex items-center justify-center transition-all"
               >
                 <RefreshCw
                   className={`w-4 h-4 ${
@@ -479,7 +479,7 @@ function DashboardPage() {
               </button>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-[#374151] hover:text-[#9F1239]"
               >
                 ✕
               </button>
@@ -493,7 +493,7 @@ function DashboardPage() {
 
                 <a
                   href={`tel:${selectedOrder.phone}`}
-                  className="text-primary hover:underline"
+                  className="text-[#D4AF37] hover:underline"
                 >
                   {selectedOrder.phone}
                 </a>
@@ -503,12 +503,12 @@ function DashboardPage() {
                     navigator.clipboard.writeText(selectedOrder.phone);
                     toast.success("Phone copied");
                   }}
-                  className="p-1 rounded hover:bg-muted"
+                  className="p-1 rounded hover:bg-[#F8F5F0]"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
               </div>
-              <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3">
+              <div className="rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-3">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-muted-foreground">
                     Delivery Address
@@ -519,7 +519,7 @@ function DashboardPage() {
                       navigator.clipboard.writeText(fullAddress);
                       toast.success("Address copied");
                     }}
-                    className="p-1 rounded hover:bg-background/50 transition"
+                    className="p-1 rounded hover:bg-[#F8F5F0] transition"
                     title="Copy Address"
                   >
                     <Copy className="w-4 h-4" />
@@ -530,13 +530,13 @@ function DashboardPage() {
                   {fullAddress}
                 </p>
               </div>
-              <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-3">
+              <div className="rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-3">
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-semibold">
                     Products
                   </p>
 
-                  <span className="text-xs px-2 py-1 rounded-full bg-green-500/10">
+                  <span className="text-xs px-2 py-1 rounded-full bg-[#D4AF37]/10 text-[#D4AF37]">
                     {selectedOrder.items?.length || 0} Items
                   </span>
                 </div>
@@ -545,7 +545,7 @@ function DashboardPage() {
                   {selectedOrder.items?.map((item: any, index: number) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between rounded-lg border bg-background p-2"
+                      className="flex items-center justify-between rounded-xl border border-[#E5E0D8] bg-white p-2"
                     >
                       <div className="min-w-0">
                         <p
@@ -578,7 +578,7 @@ function DashboardPage() {
                 </div>
               </div>
               <div className="flex justify-end border-t pt-3 mt-3">
-                <p className="text-lg font-bold text-green-400">
+                <p className="text-lg font-bold text-[#D4AF37]">
                   Total: ₹{selectedOrder.total?.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -704,10 +704,10 @@ function DashboardPage() {
                   }
                 }}
               >
-                <div className="w-8 h-8 rounded-2xl bg-green-500/15 border border-green-500/30 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-green-500/25">
-                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <div className="w-8 h-8 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-emerald-500/25">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 </div>
-                <span className="text-[11px] font-medium text-green-500">
+                <span className="text-[11px] font-medium text-emerald-500">
                   Approve
                 </span>
               </button>

@@ -39,7 +39,18 @@ const empty: Banner = {
   isActive: true 
 };
 
-const inp = "w-full px-3 py-2 bg-input border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+const inp = `
+w-full
+px-3
+py-2.5
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+focus:outline-none
+focus:ring-2
+focus:ring-[#D4AF37]
+`;
 
 // Helper Function (Same as Products)
 const getImageUrl = (img?: string | BannerImage | null): string => {
@@ -117,14 +128,24 @@ function BannersPage() {
 
   return (
     <AdminLayout>
-      <div className="flex items-center justify-between mb-5">
+      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 mb-5 shadow-sm flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Banners</h1>
           <p className="text-sm text-muted-foreground">{items.length} banners</p>
         </div>
         <button
           onClick={() => { setEditing(empty); setOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium"
+          className="
+            flex items-center gap-2
+            px-4 py-2
+            rounded-xl
+            bg-[#D4AF37]
+            text-white
+            text-sm font-medium
+            hover:brightness-110
+            transition-all
+            shadow-sm
+            "
         >
           <Plus className="w-4 h-4" /> Add Banner
         </button>
@@ -143,8 +164,17 @@ function BannersPage() {
             const imageUrl = getImageUrl(b.image);
 
             return (
-              <div key={id} className="bg-card border border-border rounded-2xl overflow-hidden">
-                <div className="aspect-[3/1] bg-muted relative">
+              <div
+                key={id}
+                className="
+                bg-white
+                border border-[#E5E0D8]
+                rounded-2xl
+                overflow-hidden
+                shadow-sm
+              "
+              >
+                <div className="aspect-[3/1] bg-[#F8F5F0] relative">
                   {imageUrl ? (
                     <img
                       src={imageUrl}
@@ -157,7 +187,7 @@ function BannersPage() {
                     </div>
                   )}
 
-                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded text-xs font-medium ${b.isActive ? "bg-emerald-500/80 text-white" : "bg-muted-foreground/80 text-white"}`}>
+                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded text-xs font-medium ${b.isActive ? "bg-green-500 text-white" : "bg-gray-500 text-white"}`}>
                     {b.isActive ? "Active" : "Inactive"}
                   </span>
                   <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-xs bg-black/60 text-white uppercase">
@@ -173,13 +203,25 @@ function BannersPage() {
                   <div className="flex gap-1">
                     <button
                       onClick={() => { setEditing(b); setOpen(true); }}
-                      className="p-1.5 rounded hover:bg-muted text-primary"
+                      className="
+                      p-2
+                      rounded-xl
+                      bg-[#D4AF37]/10
+                      text-[#D4AF37]
+                      hover:bg-[#D4AF37]/20
+                      "
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setConfirmId(id)}
-                      className="p-1.5 rounded hover:bg-muted text-destructive"
+                      className="
+                      p-2
+                      rounded-xl
+                      bg-red-500/10
+                      text-red-600
+                      hover:bg-red-500/20
+                      "
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -218,7 +260,13 @@ function BannersPage() {
           {/* Live Preview */}
           {(() => {
             const previewUrl = typeof editing.image === "string" ? editing.image : editing.image?.url || "";
-            return previewUrl && <img src={previewUrl} alt="Preview" className="w-full max-h-40 object-cover rounded-lg border border-border" />;
+            return previewUrl && <img src={previewUrl} alt="Preview" className="
+            w-full
+            max-h-40
+            object-cover
+            rounded-xl
+            border border-[#E5E0D8]
+            " />;
           })()}
 
           <div>
@@ -262,8 +310,25 @@ function BannersPage() {
           </label>
 
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 rounded-lg border border-border text-sm">Cancel</button>
-            <button disabled={saving} className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2">
+            <button type="button" onClick={() => setOpen(false)} className="
+            px-4 py-2
+            rounded-xl
+            border border-[#E5E0D8]
+            bg-white
+            hover:bg-[#F8F5F0]
+            transition-all
+            text-sm
+            ">Cancel</button>
+            <button disabled={saving} className="
+              px-5 py-2.5
+              rounded-xl
+              bg-[#D4AF37]
+              text-white
+              text-sm
+              flex items-center gap-2
+              hover:brightness-110
+              transition-all
+              ">
               {saving && <Loader2 className="w-4 h-4 animate-spin" />} Save
             </button>
           </div>

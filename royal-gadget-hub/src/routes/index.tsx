@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Package, FolderTree, Image as ImageIcon, AlertTriangle, Plus, ArrowRight, Clock } from "lucide-react";
+import { Package, FolderTree, Image as ImageIcon, AlertTriangle, ArrowRight, Clock, Copy } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import toast from "react-hot-toast";
 
@@ -17,10 +17,19 @@ interface Order {
   customerName: string;
   city?: string;
   state?: string;
-  productName?: string; // For display
   createdAt: string;
   total: number;
   status?: string;
+
+  items?: {
+    quantity: number;
+    price: number;
+    product?: {
+      _id: string;
+      name: string;
+      images?: string[];
+    };
+  }[];
 }
 
 function DashboardPage() {
@@ -38,6 +47,36 @@ function DashboardPage() {
   const [recentOrders, setRecentOrders] = useState<Order[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
+
+  const fullAddress = selectedOrder
+  ? [
+      selectedOrder.address,
+      selectedOrder.city,
+      selectedOrder.state,
+      selectedOrder.pincode,
+    ]
+      .filter(Boolean)
+      .join(", ")
+  : "";
+
+  const getProductDisplay = (order: Order) => {
+    if (!order.items || order.items.length === 0) {
+      return {
+        text: "No Products",
+        extra: 0,
+      };
+    }
+
+    const names = order.items
+      .map((item) => item.product?.name)
+      .filter(Boolean);
+
+    return {
+      text: names[0] || "Unknown Product",
+      extra: names.length - 1,
+    };
+  };
 
   useEffect(() => {
     if (!loading && !isAuthenticated) navigate({ to: "/login" });
@@ -246,7 +285,23 @@ function DashboardPage() {
               {/* Center */}
               <div className="flex-1 text-center min-w-0">
                 <p className="text-xs sm:text-sm truncate">
-                  {order.productName || "Multiple Items"}
+                  {(() => {
+                    const product = getProductDisplay(order);
+
+                    return (
+                      <div className="flex items-center justify-center gap-2">
+                        <p className="text-xs sm:text-sm truncate">
+                          {product.text}
+                        </p>
+
+                        {product.extra > 0 && (
+                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+                            +{product.extra}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                   {order.city || "N/A"}, {order.state || "N/A"}
@@ -346,10 +401,10 @@ function DashboardPage() {
 
       {selectedOrder && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-lg p-5">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col">
 
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between p-4 border-b shrink-0">
               <h2 className="text-lg font-semibold">
                 Order Details
               </h2>
@@ -363,29 +418,151 @@ function DashboardPage() {
             </div>
 
             {/* Customer */}
-            <div className="space-y-2 text-sm">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
               <p><strong>Name:</strong> {selectedOrder.customerName}</p>
-              <p><strong>Phone:</strong> {selectedOrder.phone || "N/A"}</p>
-              <p><strong>City:</strong> {selectedOrder.city || "N/A"}</p>
-              <p><strong>State:</strong> {selectedOrder.state || "N/A"}</p>
-              <p><strong>Product:</strong> {selectedOrder.productName || "Multiple Items"}</p>
+              <div className="flex items-center gap-2">
+                <strong>Phone:</strong>
+
+                <a
+                  href={`tel:${selectedOrder.phone}`}
+                  className="text-primary hover:underline"
+                >
+                  {selectedOrder.phone}
+                </a>
+
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedOrder.phone);
+                    toast.success("Phone copied");
+                  }}
+                  className="p-1 rounded hover:bg-muted"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">
+                    Delivery Address
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(fullAddress);
+                      toast.success("Address copied");
+                    }}
+                    className="p-1 rounded hover:bg-background/50 transition"
+                    title="Copy Address"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <p className="text-sm break-words leading-relaxed">
+                  {fullAddress}
+                </p>
+              </div>
+              <div className="rounded-xl border border-green-500/30 bg-green-500/5 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold">
+                    Products
+                  </p>
+
+                  <span className="text-xs px-2 py-1 rounded-full bg-green-500/10">
+                    {selectedOrder.items?.length || 0} Items
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedOrder.items?.map((item: any, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between rounded-lg border bg-background p-2"
+                    >
+                      <div className="min-w-0">
+                        <p
+                          onClick={() =>
+                            setExpandedProduct(
+                              expandedProduct === item._id
+                                ? null
+                                : item._id
+                            )
+                          }
+                          className={`font-medium text-sm cursor-pointer ${
+                            expandedProduct === item._id
+                              ? "whitespace-normal break-words"
+                              : "truncate"
+                          }`}
+                        >
+                          {item.product?.name}
+                        </p>
+
+                        <p className="text-xs text-muted-foreground">
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+
+                      <p className="font-semibold">
+                        ₹{item.price}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <p><strong>Total:</strong> ₹{selectedOrder.total?.toLocaleString("en-IN")}</p>
 
               <p>
                 <strong>Ordered On:</strong>{" "}
                 {new Date(selectedOrder.createdAt).toLocaleString("en-IN")}
               </p>
+              {/* <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3">
+        <p className="text-xs text-muted-foreground mb-1">
+          Delivery Address
+        </p>
+
+        <p className="text-sm break-words leading-relaxed">
+          {[
+            selectedOrder.address,
+            selectedOrder.city,
+            selectedOrder.state,
+            selectedOrder.pincode,
+          ]
+            .filter(Boolean)
+            .join(", ")}
+        </p>
+      </div> */}
             </div>
+            
 
             {/* Actions */}
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="p-4 border-t flex flex-wrap gap-2 shrink-0">
+
+              <button
+                className="flex-1 px-4 py-2 rounded-xl bg-yellow-500 text-black"
+                onClick={async () => {
+                  try {
+                    await api.put(`/orders/${selectedOrder._id}/status`, {
+                      status: "Pending",
+                    });
+
+                    toast.success("Order marked pending");
+                    setSelectedOrder(null);
+
+                    // loadDashboardData(); // ya loadOrders()
+                  } catch {
+                    toast.error("Failed to update order");
+                  }
+                }}
+              >
+                Keep Pending
+              </button>
 
               <button
                 className="flex-1 px-4 py-2 rounded-xl bg-green-600 text-white"
                 onClick={async () => {
                   try {
                     await api.put(`/orders/${selectedOrder._id}/status`, {
-                      status: "approved",
+                      status: "Confirmed",
                     });
 
                     toast.success("Order approved");
@@ -402,31 +579,11 @@ function DashboardPage() {
               </button>
 
               <button
-                className="flex-1 px-4 py-2 rounded-xl bg-yellow-500 text-white"
-                onClick={async () => {
-                  try {
-                    await api.put(`/orders/${selectedOrder._id}/status`, {
-                      status: "pending",
-                    });
-
-                    toast.success("Order marked pending");
-                    setSelectedOrder(null);
-
-                    // loadDashboardData(); // ya loadOrders()
-                  } catch {
-                    toast.error("Failed to update order");
-                  }
-                }}
-              >
-                Keep Pending
-              </button>
-
-              <button
                 className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white"
                 onClick={async () => {
                   try {
                     await api.put(`/orders/${selectedOrder._id}/status`, {
-                      status: "declined",
+                      status: "Cancelled"
                     });
 
                     toast.success("Order declined");

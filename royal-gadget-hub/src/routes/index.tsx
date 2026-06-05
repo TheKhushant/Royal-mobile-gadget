@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Package, FolderTree, Image as ImageIcon, AlertTriangle, ArrowRight, Clock, Copy, CheckCircle2, XCircle, Clock3, Trash2  } from "lucide-react";
+import { RefreshCw , Package, FolderTree, Image as ImageIcon, AlertTriangle, ArrowRight, Clock, Copy, CheckCircle2, XCircle, Clock3, Trash2  } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import toast from "react-hot-toast";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Dashboard — Royal Mobile Gadget Admin" }] }),
@@ -35,6 +36,8 @@ interface Order {
 function DashboardPage() {
   const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastCount, setLastCount] = useState(0);
   
   const [stats, setStats] = useState({
     products: 0,
@@ -76,6 +79,42 @@ function DashboardPage() {
       text: names[0] || "Unknown Product",
       extra: names.length - 1,
     };
+  };
+
+  const refreshOrders = async () => {
+    try {
+      setRefreshing(true);
+
+      const res = await api.get("/orders");
+
+      let orders =
+        Array.isArray(res.data)
+          ? res.data
+          : res.data?.orders || [];
+
+      orders = orders
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        )
+        .slice(0, 5);
+        if (orders.length > lastCount) {
+        toast.success(
+          `${orders.length - lastCount} new order received 🎉`
+        );
+      }
+
+      setLastCount(orders.length);
+      setRecentOrders(orders);
+
+      toast.success("Orders refreshed");
+    } catch (err) {
+      toast.error("Failed to refresh orders");
+      console.error(err);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -242,101 +281,112 @@ function DashboardPage() {
 
       {/* Recent Orders Section - Now Real Data */}
       <div className="mb-4">
-  <div className="flex items-center justify-between mb-2">
-    <h2 className="font-semibold text-sm sm:text-base flex items-center gap-1">
-      <Clock className="w-4 h-4" />
-      Orders
-    </h2>
-
-    <Link
-      to="/orders"
-      className="text-xs sm:text-sm text-primary flex items-center gap-1"
-    >
-      All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
-    </Link>
-  </div>
-
-  <div className="bg-card border border-border rounded-xl overflow-hidden">
-    {loadingStats ? (
-      <div className="py-4 text-center text-xs text-muted-foreground">
-        Loading...
-      </div>
-    ) : recentOrders.length === 0 ? (
-      <div className="py-4 text-center text-xs text-muted-foreground">
-        No orders
-      </div>
-    ) : (
-      <div className="divide-y divide-border">
-        {recentOrders.map((order) => (
-          <div
-            key={order._id}
-            onClick={() => setSelectedOrder(order)}
-            className={`p-2 sm:p-4 cursor-pointer transition-colors
-              ${
-                order.status === "Confirmed"
-                  ? "bg-green-500/10 border-l-4 border-green-500 hover:bg-green-500/20"
-                  : order.status === "Cancelled"
-                  ? "bg-red-500/10 border-l-4 border-red-500 hover:bg-red-500/20"
-                  : "bg-yellow-500/10 border-l-4 border-yellow-500 hover:bg-yellow-500/20"
-              }
-            `}
-          >
-            <div className="flex items-center gap-2">
-              
-              {/* Left */}
-              <div className="min-w-0 w-24 sm:w-40">
-                <p className="font-medium text-sm truncate">
-                  {order.customerName}
-                </p>
-              </div>
-              
-
-              {/* Center */}
-              <div className="flex-1 text-center min-w-0">
-                <div className="flex items-center justify-center gap-2">
-                  {(() => {
-                    const product = getProductDisplay(order);
-
-                    return (
-                      <>
-                        <span className="text-xs sm:text-sm truncate max-w-[120px]">
-                          {product.text}
-                        </span>
-
-                        {product.extra > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
-                            +{product.extra}
-                          </span>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                  {order.city || "N/A"}, {order.state || "N/A"}
-                </p>
-              </div>
-
-              {/* Right */}
-              <div className="text-right shrink-0">
-                <p className="font-semibold text-xs sm:text-sm">
-                  ₹{(order.total || 0).toLocaleString("en-IN")}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {new Date(order.createdAt).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                  })}
-                </p>
-              </div>
-
-            </div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex gap-4">
+            <h2 className="font-semibold text-sm sm:text-base flex items-center gap-1">
+              <Clock className="w-4 h-4" />
+              Orders
+            </h2>
+            <button
+              onClick={refreshOrders}
+              className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${
+                  refreshing ? "animate-spin" : ""
+                }`}
+              />
+            </button>
           </div>
-        ))}
+          <Link
+            to="/orders"
+            className="text-xs sm:text-sm text-primary flex items-center gap-1"
+          >
+            All <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4" />
+          </Link>
+        </div>
+
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          {loadingStats ? (
+            <div className="py-4 text-center text-xs text-muted-foreground">
+              Loading...
+            </div>
+          ) : recentOrders.length === 0 ? (
+            <div className="py-4 text-center text-xs text-muted-foreground">
+              No orders
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {recentOrders.map((order) => (
+                <div
+                  key={order._id}
+                  onClick={() => setSelectedOrder(order)}
+                  className={`p-2 sm:p-4 cursor-pointer transition-colors
+                    ${
+                      order.status === "Confirmed"
+                        ? "bg-green-500/10 border-l-4 border-green-500 hover:bg-green-500/20"
+                        : order.status === "Cancelled"
+                        ? "bg-red-500/10 border-l-4 border-red-500 hover:bg-red-500/20"
+                        : "bg-yellow-500/10 border-l-4 border-yellow-500 hover:bg-yellow-500/20"
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    
+                    {/* Left */}
+                    <div className="min-w-0 w-24 sm:w-40">
+                      <p className="font-medium text-sm truncate">
+                        {order.customerName}
+                      </p>
+                    </div>
+                    
+
+                    {/* Center */}
+                    <div className="flex-1 text-center min-w-0">
+                      <div className="flex items-center justify-center gap-2">
+                        {(() => {
+                          const product = getProductDisplay(order);
+
+                          return (
+                            <>
+                              <span className="text-xs sm:text-sm truncate max-w-[120px]">
+                                {product.text}
+                              </span>
+
+                              {product.extra > 0 && (
+                                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+                                  +{product.extra}
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                        {order.city || "N/A"}, {order.state || "N/A"}
+                      </p>
+                    </div>
+
+                    {/* Right */}
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-xs sm:text-sm">
+                        ₹{(order.total || 0).toLocaleString("en-IN")}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                        })}
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
       {/* Recent Products - Unchanged */}
       <div className="mb-4">
@@ -417,7 +467,16 @@ function DashboardPage() {
               <h2 className="text-lg font-semibold">
                 Order Details
               </h2>
-
+              <button
+                onClick={refreshOrders}
+                className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+              >
+                <RefreshCw
+                  className={`w-4 h-4 ${
+                    refreshing ? "animate-spin" : ""
+                  }`}
+                />
+              </button>
               <button
                 onClick={() => setSelectedOrder(null)}
                 className="text-muted-foreground hover:text-foreground"
@@ -518,8 +577,11 @@ function DashboardPage() {
                   ))}
                 </div>
               </div>
-              <p><strong>Total:</strong> ₹{selectedOrder.total?.toLocaleString("en-IN")}</p>
-
+              <div className="flex justify-end border-t pt-3 mt-3">
+                <p className="text-lg font-bold text-green-400">
+                  Total: ₹{selectedOrder.total?.toLocaleString("en-IN")}
+                </p>
+              </div>
               <p>
                 <strong>Ordered On:</strong>{" "}
                 {new Date(selectedOrder.createdAt).toLocaleString("en-IN")}

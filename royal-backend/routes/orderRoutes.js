@@ -20,6 +20,7 @@ router.get("/orders", async (req, res) => {
   }
 });
 
+
 router.put("/orders/:id/status", async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
@@ -76,6 +77,34 @@ router.post("/orders", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: "Failed to create order" 
+    });
+  }
+});
+
+// DELETE ORDER
+router.delete("/orders/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    await Order.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Order deleted successfully",
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete order",
     });
   }
 });

@@ -53,23 +53,32 @@ router.post('/', upload.array('images', 5), async (req, res) => {
 
 // Get All Products
 router.get('/', async (req, res) => {
-  try {
-    const { category, flash, limit = 20, page = 1 } = req.query;
-    const query = {};
+    try {
+      const { category, flash, limit = 10, page = 1 } = req.query;
 
-    if (category) query.category = category;
-    if (flash === 'true') query.isFlashSale = true;
+      const query = {};
 
-    const products = await Product.find(query)
-      .populate('category', 'name')
-      .limit(Number(limit))
-      .skip((page - 1) * limit);
+      if (category) query.category = category;
+      if (flash === 'true') query.isFlashSale = true;
 
-    res.json(products);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+      const total = await Product.countDocuments(query);
+
+      const products = await Product.find(query)
+        .populate('category', 'name')
+        .limit(Number(limit))
+        .skip((Number(page) - 1) * Number(limit));
+
+      res.json({
+        products,
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit))
+      });
+
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
 // Get Single Product
 router.get('/:id', async (req, res) => {

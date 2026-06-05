@@ -34,7 +34,7 @@ function Shop() {
         // console.log("Products:", productsRes.data);
         // console.log("Categories:", categoriesRes.data);
 
-        setProducts(productsRes.data || []);
+        setProducts(productsRes.data.products || []);
         setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
       } catch (err) {
         console.error(err);
@@ -58,7 +58,8 @@ function Shop() {
   // console.log("Products State:", products);
 
   const filtered = useMemo(() => {
-    let list = [...products];
+    let list = Array.isArray(products) ? [...products] : [];
+
     if (active) {
       list = list.filter((p) => {
         if (typeof p.category === "object") {
@@ -87,9 +88,19 @@ function Shop() {
         );
       });
     }
-    if (sort === "low") list.sort((a, b) => a.price - b.price);
-    if (sort === "high") list.sort((a, b) => b.price - a.price);
-    if (sort === "rating") list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    if (sort === "low") {
+      list.sort((a, b) => a.price - b.price);
+    }
+
+    if (sort === "high") {
+      list.sort((a, b) => b.price - a.price);
+    }
+
+    if (sort === "rating") {
+      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    }
+
     return list;
   }, [products, active, q, sort]);
 

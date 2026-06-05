@@ -58,7 +58,7 @@ function ProductsPage() {
   const [stockFilter, setStockFilter] = useState("");
   const [page, setPage] = useState(1);
   const perPage = 10;
-
+  const [totalPages, setTotalPages] = useState(1);
  
 
   const [showSearch, setShowSearch] = useState(false);
@@ -70,20 +70,34 @@ function ProductsPage() {
 
   const load = async () => {
     setLoading(true);
+
     try {
-      const [p, c] = await Promise.all([api.get("/products"), api.get("/categories")]);
-      setItems(Array.isArray(p.data) ? p.data : p.data?.products || p.data?.data || []);
-      setCats(Array.isArray(c.data) ? c.data : c.data?.categories || c.data?.data || []);
-    } catch (e: any) {
+      const [p, c] = await Promise.all([
+        api.get(`/products?page=${page}&limit=10`),
+        api.get("/categories")
+      ]);
+
+      setItems(p.data.products || []);
+      setTotalPages(p.data.pages || 1);
+      setTotalProducts(p.data.total || 0);
+
+      setCats(
+        Array.isArray(c.data)
+          ? c.data
+          : c.data?.categories || c.data?.data || []
+      );
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to load products");
     } finally {
       setLoading(false);
     }
   };
+    
 
   useEffect(() => {
     if (ready) load();
-  }, [ready]);
+  }, [ready, page]);
 
   
 
@@ -103,8 +117,8 @@ function ProductsPage() {
     });
   }, [items, search, catFilter, flashFilter, stockFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-  const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const pageItems = filtered;
 
   const handleDelete = async (id: string) => {
     try {
@@ -131,7 +145,7 @@ function ProductsPage() {
           Products
         </h1>
         <p className="text-[11px] text-muted-foreground">
-          {filtered.length} items
+          {totalProducts} items
         </p>
       </div>
 
@@ -895,9 +909,6 @@ function ProductModal({
                 className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary/90"
               />
             </div>
-
-            
-
           </div>
         </Field>
 

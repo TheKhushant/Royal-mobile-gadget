@@ -24,7 +24,18 @@ interface Category {
 }
 
 const empty: Category = { name: "", slug: "", image: "", description: "", order: 0 };
-const inp = "w-full px-3 py-2 bg-input border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+const inp = `
+  w-full
+  px-3
+  py-2.5
+  bg-white
+  border border-[#E5E0D8]
+  rounded-xl
+  text-sm
+  focus:outline-none
+  focus:ring-2
+  focus:ring-[#D4AF37]
+  `;
 
 function CategoriesPage() {
   const { ready } = useRequireAuth();
@@ -104,7 +115,7 @@ function CategoriesPage() {
   return (
     <AdminLayout>
       {/* Toolbar - Same as Products */}
-      <div className="bg-card border border-border rounded-xl p-3 mb-6">
+      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 mb-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
             <h1 className="text-lg font-bold leading-none">Categories</h1>
@@ -113,7 +124,17 @@ function CategoriesPage() {
 
           <button
             onClick={() => { setEditing(empty); setOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium"
+            className="
+            flex items-center gap-2
+            px-4 py-2
+            rounded-xl
+            bg-[#D4AF37]
+            text-white
+            text-sm font-medium
+            hover:brightness-110
+            transition-all
+            shadow-sm
+            "
           >
             <Plus className="w-4 h-4" /> Add Category
           </button>
@@ -127,7 +148,17 @@ function CategoriesPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search categories..."
-              className="w-full pl-9 pr-3 py-2 text-sm bg-input border border-border rounded-lg"
+              className="
+              w-full
+              pl-9 pr-3 py-2
+              text-sm
+              bg-white
+              border border-[#E5E0D8]
+              rounded-xl
+              focus:ring-2
+              focus:ring-[#D4AF37]
+              outline-none
+              "
             />
           </div>
         </div>
@@ -151,10 +182,18 @@ function CategoriesPage() {
             return (
               <div
                 key={id}
-                className="bg-card border border-border rounded-2xl overflow-hidden group hover:shadow-md transition-all"
+                className="
+                  bg-white
+                  border border-[#E5E0D8]
+                  rounded-2xl
+                  overflow-hidden
+                  group
+                  hover:shadow-md
+                  transition-all
+                "
               >
                 {/* Image */}
-                <div className="aspect-video bg-muted relative">
+                <div className="aspect-video bg-[#F8F5F0] relative">
                   {c.image ? (
                     <img
                       src={c.image}
@@ -203,7 +242,17 @@ function CategoriesPage() {
                     <Link
                       to="/products"
                       search={{ category: id }}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs border border-border rounded-lg hover:bg-muted transition-colors"
+                      className="
+                      flex-1
+                      flex items-center justify-center gap-2
+                      px-3 py-2
+                      text-xs
+                      border border-[#E5E0D8]
+                      rounded-xl
+                      bg-white
+                      hover:bg-[#F8F5F0]
+                      transition-all
+                      "
                     >
                       <Eye className="w-3.5 h-3.5" />
                       View Products
@@ -278,7 +327,16 @@ function CategoriesPage() {
             </button>
             <button
               disabled={saving}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2"
+              className="
+                px-5 py-2.5
+                rounded-xl
+                bg-[#D4AF37]
+                text-white
+                text-sm
+                flex items-center gap-2
+                hover:brightness-110
+                transition-all
+                "
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               Save

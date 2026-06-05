@@ -172,7 +172,7 @@ function ReviewsPage() {
 
   return (
     <AdminLayout>
-      <div className="bg-card border border-border rounded-xl p-4 mb-4">
+      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 mb-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold">Reviews</h1>
@@ -180,10 +180,26 @@ function ReviewsPage() {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => setShowSearch(!showSearch)} className="w-7 h-7 rounded-xl border flex items-center justify-center">
+            <button onClick={() => setShowSearch(!showSearch)} className="
+              w-10 h-10
+              rounded-xl
+              border border-[#E5E0D8]
+              bg-white
+              hover:bg-[#F8F5F0]
+              transition-all
+              flex items-center justify-center
+              ">
               <Search className="w-4 h-4" />
             </button>
-            <button onClick={() => setShowFilters(!showFilters)} className="w-7 h-7 rounded-xl border flex items-center justify-center">
+            <button onClick={() => setShowFilters(!showFilters)} className="
+              w-10 h-10
+              rounded-xl
+              border border-[#E5E0D8]
+              bg-white
+              hover:bg-[#F8F5F0]
+              transition-all
+              flex items-center justify-center
+              ">
               <Filter className="w-4 h-4" />
             </button>
           </div>
@@ -196,7 +212,17 @@ function ReviewsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by user, comment or product..."
-              className="w-full px-4 py-3 bg-input border border-border rounded-xl text-sm"
+              className="
+              w-full
+              px-4 py-3
+              bg-white
+              border border-[#E5E0D8]
+              rounded-xl
+              text-sm
+              focus:outline-none
+              focus:ring-2
+              focus:ring-[#D4AF37]
+              "
             />
           </div>
         )}
@@ -204,27 +230,63 @@ function ReviewsPage() {
         {/* Filters & Sort */}
         {showFilters && (
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+            <select value={productFilter} onChange={(e) => setProductFilter(e.target.value)} className="
+px-4 py-3
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+focus:outline-none
+focus:ring-2
+focus:ring-[#D4AF37]
+">
               <option value="">All Products</option>
               {products.map(p => (
                 <option key={p._id || p.id} value={p._id || p.id}>{p.name}</option>
               ))}
             </select>
 
-            <select value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value as any)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+            <select value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value as any)} className="
+px-4 py-3
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+focus:outline-none
+focus:ring-2
+focus:ring-[#D4AF37]
+">
               <option value="all">All Status</option>
               <option value="visible">Visible</option>
               <option value="hidden">Hidden</option>
             </select>
 
-            <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value ? Number(e.target.value) : "")} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+            <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value ? Number(e.target.value) : "")} className="
+px-4 py-3
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+focus:outline-none
+focus:ring-2
+focus:ring-[#D4AF37]
+">
               <option value="">Any Rating</option>
               <option value="4">4+ Stars</option>
               <option value="3">3+ Stars</option>
               <option value="2">2+ Stars</option>
             </select>
 
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} className="px-4 py-3 bg-input border border-border rounded-xl text-sm">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as SortOption)} className="
+px-4 py-3
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+focus:outline-none
+focus:ring-2
+focus:ring-[#D4AF37]
+">
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
               <option value="highest">Highest Rating</option>
@@ -243,7 +305,7 @@ function ReviewsPage() {
       ) : (
         <div className="space-y-2 pb-4">
           {filteredReviews.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">
+            <div className="text-center py-20 text-[#6B7280]">
               No reviews found
             </div>
           ) : (
@@ -256,7 +318,13 @@ function ReviewsPage() {
               return (
                 <div
                   key={id}
-                  className="bg-card border border-border rounded-lg p-2"
+                  className="
+                    bg-white
+                    border border-[#E5E0D8]
+                    rounded-2xl
+                    p-3
+                    shadow-sm
+                    "
                 >
                   <div className="flex items-start gap-2">
                     <div className="flex-1">
@@ -281,14 +349,23 @@ function ReviewsPage() {
                     <div className="flex gap-1 ml-auto shrink-0">
                       <button
                         onClick={() => toggleVisibility(r)}
-                        className={`p-1.5 rounded-xl transition-colors ${visible ? "text-emerald-500 hover:bg-emerald-500/10" : "text-red-500 hover:bg-red-500/10"}`}
+                        className={`p-1.5 rounded-xl transition-colors ${visible
+                        ? "bg-green-100 text-green-700 hover:bg-green-200"
+                        : "bg-red-100 text-red-700 hover:bg-red-200"}`}
                       >
                         {visible ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                       </button>
 
                       <button
                         onClick={() => setConfirmId(id)}
-                        className="p-1.5 rounded-xl text-destructive hover:bg-red-500/10 transition-colors"
+                        className="
+                        p-2
+                        rounded-xl
+                        bg-red-500/10
+                        text-red-600
+                        hover:bg-red-500/20
+                        transition-all
+                        "
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>

@@ -5,7 +5,7 @@ import { Modal, ConfirmDialog } from "@/components/admin/Modal";
 import { useRequireAuth } from "@/components/admin/useRequireAuth";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
-import { SquarePlus , Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, X, Loader2, ImageOff, Filter } from "lucide-react";
 
 
 export const Route = createFileRoute("/products")({
@@ -138,16 +138,16 @@ function ProductsPage() {
 
   return (
     <AdminLayout>
-      <div className="bg-card border border-border rounded-xl p-3 mb-4">
+      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-4 mb-4 shadow-sm">
 
     {/* Top Toolbar */}
     <div className="flex items-center justify-between">
 
       <div className="min-w-0">
-        <h1 className="text-lg font-bold leading-none">
+        <h1 className="text-xl font-bold text-[#1F2937]">
           Products
         </h1>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-[#6B7280]">
           {totalProducts} items
         </p>
       </div>
@@ -157,7 +157,15 @@ function ProductsPage() {
         {/* Search */}
         <button
           onClick={() => setShowSearch(!showSearch)}
-          className="w-9 h-9 rounded-lg border border-border flex items-center justify-center"
+          className="
+            w-10 h-10
+            rounded-xl
+            border border-[#E5E0D8]
+            bg-white
+            hover:bg-[#F8F5F0]
+            transition-all
+            shadow-sm
+            flex items-center justify-center"
         >
           <Search className="w-4 h-4" />
         </button>
@@ -176,7 +184,15 @@ function ProductsPage() {
             setEditing(empty);
             setModalOpen(true);
           }}
-          className="w-9 h-9 rounded-lg bg-gradient-to-r from-primary to-accent text-white flex items-center justify-center"
+          className="
+          w-10 h-10
+          rounded-xl
+          bg-[#D4AF37]
+          text-white
+          hover:scale-105
+          transition-all
+          shadow-md
+          flex items-center justify-center"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -196,7 +212,19 @@ function ProductsPage() {
               setPage(1);
             }}
             placeholder="Search products..."
-            className="w-full pl-9 pr-3 py-2 text-sm bg-input border border-border rounded-lg"
+            className="
+            w-full
+            pl-10
+            pr-3
+            py-2.5
+            text-sm
+            bg-white
+            border border-[#E5E0D8]
+            rounded-xl
+            focus:ring-2
+            focus:ring-[#D4AF37]
+            outline-none
+            "
           />
         </div>
       </div>
@@ -209,7 +237,13 @@ function ProductsPage() {
         <select
           value={catFilter}
           onChange={(e) => setCatFilter(e.target.value)}
-          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+          className="
+px-3 py-2
+bg-white
+border border-[#E5E0D8]
+rounded-xl
+text-sm
+"
         >
           <option value="">Category</option>
           {cats.map((c) => (
@@ -225,7 +259,13 @@ function ProductsPage() {
         <select
           value={flashFilter}
           onChange={(e) => setFlashFilter(e.target.value)}
-          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+          className="
+            px-3 py-2
+            bg-white
+            border border-[#E5E0D8]
+            rounded-xl
+            text-sm
+            "
         >
           <option value="">Flash</option>
           <option value="yes">Yes</option>
@@ -235,7 +275,13 @@ function ProductsPage() {
         <select
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value)}
-          className="px-2 py-2 bg-input border border-border rounded-lg text-xs"
+          className="
+          px-3 py-2
+          bg-white
+          border border-[#E5E0D8]
+          rounded-xl
+          text-sm
+          "
         >
           <option value="">Stock</option>
           <option value="in">In</option>
@@ -247,15 +293,22 @@ function ProductsPage() {
     )}
   </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+      <div className="rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto scrollbar-thin">
           
           {/* Desktop Table */}
-          <div className="hidden md:block bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="
+            hidden md:block
+            bg-white
+            border border-[#E5E0D8]
+            rounded-2xl
+            overflow-hidden
+            shadow-sm
+            ">
             <div className="overflow-x-auto">
               {/* <table className="w-full text-sm"> */}
                 <table className="w-full min-w-[850px] text-sm">
-                  <thead className="bg-muted/50 text-left text-muted-foreground">
+                  <thead className="bg-[#F8F5F0] text-left text-muted-foreground">
                     <tr>
                       <th className="p-3">Image</th>
                       <th className="p-3">Name</th>
@@ -279,7 +332,15 @@ function ProductsPage() {
                       const img = getImageUrl(p.images?.[0] ?? null);
                           
                       return (
-                        <tr key={id} className="border-t border-border">
+                        <tr
+                          key={id}
+                          className="
+                          border-t
+                          border-[#E5E0D8]
+                          hover:bg-[#FAF8F4]
+                          transition-colors
+                          "
+                          >
                           <td className="p-3">
                             {img ? (
                               <img src={img} alt={p.name} className="w-12 h-12 rounded object-cover" />
@@ -288,18 +349,28 @@ function ProductsPage() {
                             )}
                           </td>
                           <td className="p-3 font-medium">{p.name}</td>
-                          <td className="p-3">${p.price}</td>
-                          <td className="p-3 text-muted-foreground line-through">{p.originalPrice ? `$${p.originalPrice}` : "—"}</td>
+                          <td className="p-3">₹{p.price}</td>
+                          <td className="p-3 text-muted-foreground line-through">{p.originalPrice ? `₹${p.originalPrice}` : "—"}</td>
                           <td className="p-3">{p.discount ? `${p.discount}%` : "—"}</td>
                           <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded text-xs ${(p.stock ?? 0) === 0 ? "bg-destructive/15 text-destructive" : (p.stock ?? 0) < 5 ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500"}`}>
+                            <span className={`px-2 py-0.5 rounded text-xs ${(p.stock ?? 0) === 0
+                            ? "bg-red-100 text-red-600"
+                            : (p.stock ?? 0) < 5
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-green-100 text-green-700"}`}>
                               {p.stock ?? 0}
                             </span>
                           </td>
                           <td className="p-3">{(p.flashSale || p.isFlashSale) ? "⚡" : "—"}</td>
                           <td className="p-3">
                             <div className="flex justify-end gap-2">
-                              <button onClick={() => { setEditing(p); setModalOpen(true); }} className="p-1.5 rounded hover:bg-muted text-primary"><Edit2 className="w-4 h-4" /></button>
+                              <button onClick={() => { setEditing(p); setModalOpen(true); }} className="
+                              p-2
+                              rounded-xl
+                              bg-[#D4AF37]/10
+                              text-[#D4AF37]
+                              hover:bg-[#D4AF37]/20
+"><Edit2 className="w-4 h-4" /></button>
                               <button onClick={() => setConfirmId(id)} className="p-1.5 rounded hover:bg-muted text-destructive"><Trash2 className="w-4 h-4" /></button>
                             </div>
                           </td>
@@ -328,7 +399,13 @@ function ProductsPage() {
                 return (
                   <div
                     key={id}
-                    className="bg-card border border-border rounded-lg p-2"
+                    className="
+                    bg-white
+                    border border-[#E5E0D8]
+                    rounded-2xl
+                    p-3
+                    shadow-sm
+                    "
                   >
                     <div className="flex items-center gap-2">
                       {img ? (
@@ -357,14 +434,20 @@ function ProductsPage() {
                                 setEditing(p);
                                 setModalOpen(true);
                               }}
-                              className="p-1 rounded bg-primary/10 text-primary"
+                              className="p-2 rounded-xl bg-[#D4AF37]/10 text-[#D4AF37] hover:bg-[#D4AF37]/20"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
 
                             <button
                               onClick={() => setConfirmId(id)}
-                              className="p-1 rounded bg-red-100 text-red-600"
+                              className="
+                              p-2
+                              rounded-xl
+                              bg-red-500/10
+                              text-red-600
+                              hover:bg-red-500/20
+                              "
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -411,8 +494,24 @@ function ProductsPage() {
           <div className="flex items-center justify-between p-3 border-t border-border text-sm">
             <span className="text-muted-foreground">Page {page} of {totalPages}</span>
             <div className="flex gap-2">
-              <button disabled={page === 1} onClick={() => setPage(page - 1)} className="px-3 py-1 rounded border border-border disabled:opacity-50">Prev</button>
-              <button disabled={page === totalPages} onClick={() => setPage(page + 1)} className="px-3 py-1 rounded border border-border disabled:opacity-50">Next</button>
+              <button disabled={page === 1} onClick={() => setPage(page - 1)} className="
+                          px-4 py-2
+                          rounded-xl
+                          border border-[#E5E0D8]
+                          bg-white
+                          hover:bg-[#F8F5F0]
+                          transition-all
+                          disabled:opacity-50
+                          disabled:opacity-50">Prev</button>
+              <button disabled={page === totalPages} onClick={() => setPage(page + 1)} className="
+                                  px-4 py-2
+                                  rounded-xl
+                                  border border-[#E5E0D8]
+                                  bg-white
+                                  hover:bg-[#F8F5F0]
+                                  transition-all
+                                  disabled:opacity-50
+                                  disabled:opacity-50">Next</button>
             </div>
           </div>
         )}
@@ -955,7 +1054,16 @@ function ProductModal({
 
           <button
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm flex items-center gap-2"
+            className="
+            px-5
+            py-2.5
+            rounded-xl
+            bg-[#D4AF37]
+            text-white
+            hover:brightness-110
+            transition-all
+            flex items-center gap-2
+            "
           >
             {saving && (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -994,7 +1102,9 @@ function ProductModal({
           <button
             type="button"
             onClick={createCategory}
-            className="px-4 py-2 bg-primary text-white rounded-lg"
+            className="px-4 py-2 bg-[#D4AF37]
+            hover:brightness-110
+            text-white rounded-lg"
           >
             Add Category
           </button>
@@ -1006,7 +1116,19 @@ function ProductModal({
   );
 }
 
-const inp = "w-full px-3 py-2 bg-input border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+const inp = `
+      w-full
+      px-3
+      py-2.5
+      bg-white
+      border
+      border-[#E5E0D8]
+      rounded-xl
+      text-sm
+      focus:outline-none
+      focus:ring-2
+      focus:ring-[#D4AF37]
+      `;
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div><label className="text-xs font-medium text-muted-foreground block mb-1">{label}</label>{children}</div>;
 }

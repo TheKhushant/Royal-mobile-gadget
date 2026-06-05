@@ -26,16 +26,21 @@ export function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div
-        className={`${sizes[size]} w-full bg-card border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`${sizes[size]} w-full bg-white border border-[#E5E0D8] rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-5 border-b border-border">
+        <div className="flex items-center justify-between p-5 border-b border-[#E5E0D8] bg-white">
           <h3 className="font-semibold">{title}</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-muted">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl hover:bg-[#F8F5F0] transition-all"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="p-5 overflow-y-auto">{children}</div>
+        <div className="p-5 overflow-y-auto bg-white">
+          {children}
+        </div>
       </div>
     </div>
   );

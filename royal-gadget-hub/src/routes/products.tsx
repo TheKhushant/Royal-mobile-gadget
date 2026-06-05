@@ -108,8 +108,11 @@ function ProductsPage() {
         const cid = typeof p.category === "object" ? p.category?._id || p.category?.id : p.category;
         if (cid !== catFilter) return false;
       }
-      if (flashFilter === "yes" && !p.flashSale) return false;
-      if (flashFilter === "no" && p.flashSale) return false;
+      if (flashFilter === "yes" && !(p.flashSale || p.isFlashSale))
+        return false;
+
+      if (flashFilter === "no" && (p.flashSale || p.isFlashSale))
+        return false;
       if (stockFilter === "out" && (p.stock ?? 0) > 0) return false;
       if (stockFilter === "low" && ((p.stock ?? 0) === 0 || (p.stock ?? 0) >= 5)) return false;
       if (stockFilter === "in" && (p.stock ?? 0) < 5) return false;
@@ -293,7 +296,7 @@ function ProductsPage() {
                               {p.stock ?? 0}
                             </span>
                           </td>
-                          <td className="p-3">{p.flashSale ? "⚡" : "—"}</td>
+                          <td className="p-3">{(p.flashSale || p.isFlashSale) ? "⚡" : "—"}</td>
                           <td className="p-3">
                             <div className="flex justify-end gap-2">
                               <button onClick={() => { setEditing(p); setModalOpen(true); }} className="p-1.5 rounded hover:bg-muted text-primary"><Edit2 className="w-4 h-4" /></button>
@@ -350,6 +353,7 @@ function ProductsPage() {
                           <div className="flex gap-1 shrink-0">
                             <button
                               onClick={() => {
+                                console.log("EDITING =>", p);
                                 setEditing(p);
                                 setModalOpen(true);
                               }}
@@ -390,7 +394,7 @@ function ProductsPage() {
                             {p.stock}
                           </span>
 
-                          {p.flashSale && (
+                          {(p.flashSale || p.isFlashSale) && (
                             <span className="text-[10px] text-orange-600">
                               ⚡
                             </span>
@@ -561,6 +565,7 @@ function ProductModal({
       const formData = new FormData();
 
       formData.append("name", form.name);
+      console.log("PRICE BEFORE SAVE =", form.price);
       formData.append("price", String(form.price));
       formData.append("stock", String(form.stock));
       formData.append("originalPrice", String(form.originalPrice || 0));
@@ -568,8 +573,15 @@ function ProductModal({
       formData.append("flashSale", String(!!form.flashSale));
 
       if (form.description) formData.append("description", form.description);
-      if (form.category) formData.append("category", form.category);
-
+      if (form.category) {
+        formData.append(
+          "category",
+          typeof form.category === "object"
+            ? form.category._id
+            : form.category
+        );
+      }
+      console.log("CATEGORY =>", form.category);
       // Combine: Existing Images + New URLs
       const combinedImages = [
         ...(form.images || []),
@@ -603,7 +615,7 @@ function ProductModal({
 
   return (
     <>
-    
+     
     <Modal open={open} onClose={onClose} title={isEdit ? "Edit Product" : "Add Product"} size="lg">
       <form onSubmit={submit} className="space-y-3">
 
@@ -673,9 +685,14 @@ function ProductModal({
               step="0.01"
               className={inp}
               value={form.price}
-              onChange={(e) =>
-                setForm({ ...form, price: +e.target.value })
-              }
+              onChange={(e) => {
+                console.log("INPUT =", e.target.value);
+
+                setForm(prev => ({
+                  ...prev,
+                  price: Number(e.target.value)
+                }));
+              }}
               required
             />
           </Field>

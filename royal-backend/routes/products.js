@@ -28,7 +28,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
       const uploadedImages = await uploadMultipleImages(req.files);
       imageData = [...imageData, ...uploadedImages];
     }
-
+    console.log("REQ PRICE =", req.body.price);
     const productData = {
       name: req.body.name,
       price: req.body.price,
@@ -43,7 +43,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
 
     const product = new Product(productData);
     const savedProduct = await product.save();
-
+    console.log("REQ PRICE =", req.body.price);
     res.status(201).json(savedProduct);
   } catch (err) {
     console.error(err);
@@ -104,12 +104,53 @@ router.get('/:id', async (req, res) => {
 
 
 // Update Product
-router.put('/:id', async (req, res) => {
+// Update Product
+router.put('/:id', upload.array('images', 5), async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    let imageData = [];
+
+    // Existing images
+    if (req.body.existingImages) {
+      try {
+        imageData = JSON.parse(req.body.existingImages);
+      } catch (e) {
+        console.error("existingImages parse error", e);
+      }
+    }
+
+    // New uploaded images
+    if (req.files && req.files.length > 0) {
+      const uploadedImages = await uploadMultipleImages(req.files);
+      imageData = [...imageData, ...uploadedImages];
+    }
+
+    const updatedData = {
+      name: req.body.name,
+      price: req.body.price,
+      originalPrice: req.body.originalPrice || 0,
+      discount: req.body.discount || 0,
+      stock: req.body.stock,
+      description: req.body.description,
+      category: req.body.category,
+      isFlashSale:
+        req.body.flashSale === "true" ||
+        req.body.flashSale === true,
+      images: imageData,
+    };
+
+    const updated = await Product.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
+
     res.json(updated);
+
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error(err);
+    res.status(400).json({
+      message: err.message
+    });
   }
 });
 

@@ -90,8 +90,8 @@ export function Sidebar({ isMobileOpen = false, onClose }: SidebarProps) {
           <div className="absolute left-0 top-0 bottom-0 w-72 bg-white border-r border-[#E5E0D8] shadow-2xl transform transition-transform duration-300">
             <div className="h-16 flex items-center justify-between px-4 border-b border-[#E5E0D8]">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#9F1239] flex items-center justify-center shadow-md">
-                  <Zap className="w-4 h-4 text-primary-foreground" />
+                <div className="w-12 h-12 rounded-full flex items-center justify-center">
+                  <img src="./logoGoldNoBG.png" alt="Logo" />
                 </div>
                 <span className="font-bold text-sm">Royal Mobile</span>
               </div>

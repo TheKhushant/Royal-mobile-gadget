@@ -20,14 +20,18 @@ router.get("/orders", async (req, res) => {
   }
 });
 
-router.put('/:id/status', async (req, res) => {
-  const order = await Order.findByIdAndUpdate(
-    req.params.id,
-    { status: req.body.status },
-    { new: true }
-  );
+router.put("/orders/:id/status", async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: req.body.status },
+      { new: true }
+    );
 
-  res.json(order);
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // CREATE NEW ORDER (POST)

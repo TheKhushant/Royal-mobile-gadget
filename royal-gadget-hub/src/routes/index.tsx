@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { useAuth } from "@/lib/auth";
 import { api } from "@/lib/api";
-import { Package, FolderTree, Image as ImageIcon, AlertTriangle, ArrowRight, Clock, Copy } from "lucide-react";
+import { Package, FolderTree, Image as ImageIcon, AlertTriangle, ArrowRight, Clock, Copy, CheckCircle2, XCircle, Clock3, Trash2  } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import toast from "react-hot-toast";
 
@@ -271,7 +271,15 @@ function DashboardPage() {
           <div
             key={order._id}
             onClick={() => setSelectedOrder(order)}
-            className="p-2 sm:p-4 hover:bg-muted/50 cursor-pointer"
+            className={`p-2 sm:p-4 cursor-pointer transition-colors
+              ${
+                order.status === "Confirmed"
+                  ? "bg-green-500/10 border-l-4 border-green-500 hover:bg-green-500/20"
+                  : order.status === "Cancelled"
+                  ? "bg-red-500/10 border-l-4 border-red-500 hover:bg-red-500/20"
+                  : "bg-yellow-500/10 border-l-4 border-yellow-500 hover:bg-yellow-500/20"
+              }
+            `}
           >
             <div className="flex items-center gap-2">
               
@@ -281,28 +289,29 @@ function DashboardPage() {
                   {order.customerName}
                 </p>
               </div>
+              
 
               {/* Center */}
               <div className="flex-1 text-center min-w-0">
-                <p className="text-xs sm:text-sm truncate">
+                <div className="flex items-center justify-center gap-2">
                   {(() => {
                     const product = getProductDisplay(order);
 
                     return (
-                      <div className="flex items-center justify-center gap-2">
-                        <p className="text-xs sm:text-sm truncate">
+                      <>
+                        <span className="text-xs sm:text-sm truncate max-w-[120px]">
                           {product.text}
-                        </p>
+                        </span>
 
                         {product.extra > 0 && (
                           <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
                             +{product.extra}
                           </span>
                         )}
-                      </div>
+                      </>
                     );
                   })()}
-                </p>
+                </div>
                 <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                   {order.city || "N/A"}, {order.state || "N/A"}
                 </p>
@@ -535,10 +544,66 @@ function DashboardPage() {
             
 
             {/* Actions */}
-            <div className="p-4 border-t flex flex-wrap gap-2 shrink-0">
-
+            <div className="p-2 border-t flex items-center justify-center gap-4">
               <button
-                className="flex-1 px-4 py-2 rounded-xl bg-yellow-500 text-black"
+                className="w-8 h-8 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 hover:bg-red-500/25"
+                title="Delete Order"
+                onClick={async () => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to delete this order?"
+                  );
+
+                  if (!confirmed) return;
+
+                  try {
+                    await api.delete(`/orders/${selectedOrder._id}`);
+
+                    toast.success("Order deleted successfully");
+
+                    setRecentOrders((prev) =>
+                      prev.filter((o) => o._id !== selectedOrder._id)
+                    );
+
+                    setSelectedOrder(null);
+                  } catch (error) {
+                    toast.error("Failed to delete order");
+                    console.error(error);
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4 text-red-300" />
+                
+              </button>
+              
+              {/* Decline */}
+              <button
+                title="Decline"
+                className="group flex flex-col items-center gap-1"
+                onClick={async () => {
+                  try {
+                    await api.put(`/orders/${selectedOrder._id}/status`, {
+                      status: "Cancelled",
+                    });
+
+                    toast.success("Order declined");
+                    setSelectedOrder(null);
+                  } catch {
+                    toast.error("Failed to decline order");
+                  }
+                }}
+              >
+                <div className="w-8 h-8 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-red-500/25">
+                  <XCircle className="w-4 h-4 text-red-500" />
+                </div>
+                <span className="text-[11px] font-medium text-red-500">
+                  Decline
+                </span>
+              </button>
+
+              {/* Pending */}
+              <button
+                title="Pending"
+                className="group flex flex-col items-center gap-1"
                 onClick={async () => {
                   try {
                     await api.put(`/orders/${selectedOrder._id}/status`, {
@@ -547,18 +612,23 @@ function DashboardPage() {
 
                     toast.success("Order marked pending");
                     setSelectedOrder(null);
-
-                    // loadDashboardData(); // ya loadOrders()
                   } catch {
                     toast.error("Failed to update order");
                   }
                 }}
               >
-                Keep Pending
+                <div className="w-8 h-8 rounded-2xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-yellow-500/25">
+                  <Clock3 className="w-4 h-4 text-yellow-500" />
+                </div>
+                <span className="text-[11px] font-medium text-yellow-500">
+                  Pending
+                </span>
               </button>
 
+              {/* Approve */}
               <button
-                className="flex-1 px-4 py-2 rounded-xl bg-green-600 text-white"
+                title="Approve"
+                className="group flex flex-col items-center gap-1"
                 onClick={async () => {
                   try {
                     await api.put(`/orders/${selectedOrder._id}/status`, {
@@ -567,36 +637,20 @@ function DashboardPage() {
 
                     toast.success("Order approved");
                     setSelectedOrder(null);
-
-                    // Orders reload karne ke liye
-                    // loadDashboardData(); // ya loadOrders()
                   } catch {
                     toast.error("Failed to approve order");
                   }
                 }}
               >
-                Approve
+                <div className="w-8 h-8 rounded-2xl bg-green-500/15 border border-green-500/30 flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-green-500/25">
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                </div>
+                <span className="text-[11px] font-medium text-green-500">
+                  Approve
+                </span>
               </button>
 
-              <button
-                className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white"
-                onClick={async () => {
-                  try {
-                    await api.put(`/orders/${selectedOrder._id}/status`, {
-                      status: "Cancelled"
-                    });
-
-                    toast.success("Order declined");
-                    setSelectedOrder(null);
-
-                    // loadDashboardData(); // ya loadOrders()
-                  } catch {
-                    toast.error("Failed to decline order");
-                  }
-                }}
-              >
-                Decline
-              </button>
+              
 
             </div>
           </div>

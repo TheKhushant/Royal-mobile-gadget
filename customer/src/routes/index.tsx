@@ -17,76 +17,8 @@ type Banner = {
   } | string;
 };
 
-// function HeroSlider() {
-//   const [currentImage, setCurrentImage] = useState(0);
-
-//   useEffect(() => {
-//     if (banners.length === 0) return;
-//     const interval = setInterval(() => {
-//       setCurrentImage((prev) => (prev + 1) % banners.length);
-//     }, 3000);
-//     return () => clearInterval(interval);
-//   }, [banners.length]);
-
-//   useEffect(() => {
-//     banners.forEach((banner) => {
-//       const img = new Image();
-
-//       img.src =
-//         typeof banner.image === "string"
-//           ? banner.image
-//           : banner.image?.url || "";
-//     });
-//   }, [banners]);
-
-//   if (isLoading || banners.length === 0) {
-//     return <div className="w-full h-[350px] bg-zinc-100 rounded-3xl animate-pulse" />;
-//   }
-
-//   const { data: banners = [], isLoading } = useQuery<Banner[]>({
-//     queryKey: ["banners"],
-//     queryFn: async () => {
-//       const res = await api.get("/banners");
-//       return res.data || [];
-//     },
-
-//     staleTime: 1000 * 60 * 30,
-//     gcTime: 1000 * 60 * 60,
-//     refetchOnWindowFocus: false,
-//     refetchOnReconnect: false,
-//     refetchOnMount: false,
-//   });
-  
-
-//   return (
-//     <AnimatePresence mode="wait">
-//       <motion.img
-//         key={currentImage}
-//         src={banners[currentImage]?.image?.url || banners[currentImage]?.image}
-//         alt={banners[currentImage]?.title || "Banner"}
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         exit={{ opacity: 0 }}
-//         transition={{ duration: 0.5 }}
-//       />
-//     </AnimatePresence>
-//   );
-// }
 function HeroSlider() {
 
-  // const { data: products = [], isLoading: productsLoading } = useQuery({
-  //   queryKey: ["flash-sale-products"],
-  //   queryFn: async () => {
-  //     const res = await api.get("/products");
-
-  //     const allProducts =
-  //       res.data?.products || res.data || [];
-
-  //     return allProducts.filter(
-  //       (p: any) => p.isFlashSale === true
-  //     );
-  //   },
-  // });
   const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ["flash-sale-products"],
     queryFn: async () => {
@@ -278,14 +210,7 @@ function FloatingToy() {
 }
 
 function Home() {
-  // const { data: products = [], isLoading: productsLoading } = useQuery({
-  //   queryKey: ["products"],
-  //   queryFn: async () => {
-  //     const res = await api.get("/products");
-  //     return res.data?.products || res.data || [];
-  //   },
-  // });
-
+  
     // Fetch real categories from backend
   const { data: categoriesData = [] } = useQuery({
     queryKey: ["categories"],
@@ -295,24 +220,7 @@ function Home() {
     },
   });
 
-  // const featured = [
-  //   { slug: "Earbuds", icon: Star },
-  //   { slug: "Smart Watch", icon: Trophy },
-  //   { slug: "Charger", icon: Shield },
-  //   { slug: "Power Bank", icon: Gift },
-  //   { slug: "Cable", icon: Truck },
-  //   { slug: "Gifts", icon: Gift },
-  // ];
-
-  // // fetch categories 
-  // const { data: categoriesData = [] } = useQuery({
-  //   queryKey: ["categories"],
-  //   queryFn: async () => {
-  //     const res = await api.get("/categories");
-  //     return res.data?.categories || res.data || [];
-  //   },
-  // });
-
+  
   const reviews = [
     { name: "Rahul Sharma", rating: 5, text: "Best earbuds I ever bought! Sound quality is amazing." },
     { name: "Priya Patel", rating: 4, text: "Fast delivery and genuine product. Highly recommended." },
@@ -439,15 +347,6 @@ function Home() {
                 Shop Now <ArrowRight size={16} />
               </Link>
             </motion.div>
-
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                to="/gifts"
-                className="whitespace-nowrap bg-white/70 backdrop-blur-md border border-zinc-300 hover:border-rose-500 text-zinc-800 px-5 py-3 rounded-2xl text-sm font-semibold inline-flex items-center gap-2 shadow-md shrink-0"
-              >
-                <Gift size={16} /> Gift Store
-              </Link>
-            </motion.div>
           </div>
 
           {/* Feature Pills */}
@@ -518,51 +417,6 @@ function Home() {
     </section>
     
 
-      {/* FEATURED CATEGORIES */}
-      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-rose-600">Discover</div>
-            <h2 className="font-display text-4xl mt-1">Featured Categories</h2>
-          </div>
-          <Link to="/categories" className="text-rose-600 inline-flex items-center gap-2 hover:gap-3 transition-all">
-            All Categories <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {featured.map((c, i) => {
-            const Icon = c.icon;   // important
-
-            return (
-              <motion.div
-                key={c.slug}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <Link
-                  to="/shop"
-                  search={{ category: c.slug } as any}
-                  className="royal-border bg-white rounded-2xl p-3 sm:p-4 min-h-[120px] sm:min-h-[140px] flex flex-col items-center justify-center text-center hover:shadow-xl transition-all group"
-                >
-                  
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-50 flex items-center justify-center mb-3 group-hover:bg-rose-100 transition">
-                    <Icon className="w-7 h-7 sm:w-9 sm:h-9 text-rose-500 group-hover:scale-110 transition-transform" />
-                  </div>
-
-                  
-                  <div className="font-medium text-xs sm:text-sm lg:text-base leading-tight line-clamp-2 group-hover:text-rose-600 transition-colors">
-                    {c.slug}
-                  </div>
-                </Link>
-              </motion.div>
-              
-            );
-          })}
-        </div>
-      </section> */}
       {/* FEATURED CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
         <div className="flex items-end justify-between mb-8">

@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as OrderConfirmedRouteImport } from './routes/order-confirmed'
-import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as CustomOrderRouteImport } from './routes/custom-order'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -34,11 +33,6 @@ const PaymentRoute = PaymentRouteImport.update({
 const OrderConfirmedRoute = OrderConfirmedRouteImport.update({
   id: '/order-confirmed',
   path: '/order-confirmed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GiftsRoute = GiftsRouteImport.update({
-  id: '/gifts',
-  path: '/gifts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomOrderRoute = CustomOrderRouteImport.update({
@@ -84,7 +78,6 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
-  '/gifts': typeof GiftsRoute
   '/order-confirmed': typeof OrderConfirmedRoute
   '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
@@ -97,7 +90,6 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
-  '/gifts': typeof GiftsRoute
   '/order-confirmed': typeof OrderConfirmedRoute
   '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
@@ -111,7 +103,6 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/custom-order': typeof CustomOrderRoute
-  '/gifts': typeof GiftsRoute
   '/order-confirmed': typeof OrderConfirmedRoute
   '/payment': typeof PaymentRoute
   '/shop': typeof ShopRoute
@@ -126,7 +117,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/custom-order'
-    | '/gifts'
     | '/order-confirmed'
     | '/payment'
     | '/shop'
@@ -139,7 +129,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/custom-order'
-    | '/gifts'
     | '/order-confirmed'
     | '/payment'
     | '/shop'
@@ -152,7 +141,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/custom-order'
-    | '/gifts'
     | '/order-confirmed'
     | '/payment'
     | '/shop'
@@ -166,7 +154,6 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   CustomOrderRoute: typeof CustomOrderRoute
-  GiftsRoute: typeof GiftsRoute
   OrderConfirmedRoute: typeof OrderConfirmedRoute
   PaymentRoute: typeof PaymentRoute
   ShopRoute: typeof ShopRoute
@@ -194,13 +181,6 @@ declare module '@tanstack/react-router' {
       path: '/order-confirmed'
       fullPath: '/order-confirmed'
       preLoaderRoute: typeof OrderConfirmedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gifts': {
-      id: '/gifts'
-      path: '/gifts'
-      fullPath: '/gifts'
-      preLoaderRoute: typeof GiftsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/custom-order': {
@@ -262,7 +242,6 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   CustomOrderRoute: CustomOrderRoute,
-  GiftsRoute: GiftsRoute,
   OrderConfirmedRoute: OrderConfirmedRoute,
   PaymentRoute: PaymentRoute,
   ShopRoute: ShopRoute,

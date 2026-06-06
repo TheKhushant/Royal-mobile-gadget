@@ -51,7 +51,6 @@ export default function Footer() {
               {[
                 { to: "/shop", label: "All Products" },
                 { to: "/categories", label: "Categories" },
-                { to: "/gifts", label: "Gift Store" },
                 { to: "/custom-order", label: "Custom Order" },
               ].map((item) => (
                 <li key={item.label}>

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api",   // Backend URL
+  baseURL: "https://royal-gadgets-accessories-1.onrender.com/api",   // Backend URL
   timeout: 10000,
 });
 

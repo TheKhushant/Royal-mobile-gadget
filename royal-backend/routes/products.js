@@ -54,7 +54,7 @@ router.post('/', upload.array('images', 5), async (req, res) => {
 // Get All Products
 router.get('/', async (req, res) => {
     try {
-      const { category, flash, limit = 10, page = 1 } = req.query;
+      const { category, flash, limit = 20, page = 1 } = req.query;
 
       const query = {};
 
